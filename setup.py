@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
-import setuptools
+from setuptools import setup, find_packages
 
-setuptools.setup(
+version = "3.6.1"
+
+setup(
     name='raritan-rpc',
-    version='3.6.1',
-    packages=setuptools.find_packages()
+    version=version,
+    description='Fork of the Raritan PX3 python SDK',
+    packages=find_packages(),
+    python_requires='>=3',
 )
