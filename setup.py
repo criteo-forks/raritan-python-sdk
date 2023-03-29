@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-version = "3.6.1"
+version = "4.0.20"
 
 setup(
     name='raritan-rpc',

@@ -11,9 +11,11 @@ import raritan.rpc
 try:
     # Python 3
     import urllib.request as urllib_request
+    from urllib.parse import urlparse
 except ImportError:
     # Python 2
     import urllib2 as urllib_request
+    from urlparse import urlparse
 
 class Agent(object):
     """Provides transport to one RPC service, e.g. one PX2 device - holds host,
@@ -33,7 +35,7 @@ class Agent(object):
         if disable_certificate_verification:
             import ssl
             if "_create_unverified_context" in ssl.__dict__.keys():
-                context = ssl._create_unverified_context()
+                context = ssl._create_unverified_context() # nosec B323 (only done on explicit request by the user, default is to verify the certificate)
 
         self.opener = urllib_request.OpenerDirector()
         self.opener.add_handler(urllib_request.HTTPHandler())
@@ -48,10 +50,14 @@ class Agent(object):
     def __create_request(self, target_url, data = None):
         Agent.id += 1
 
+        # avoid theoretical security risk of using other URL schemes
+        if not (target_url.lower().startswith('http://') or target_url.lower().startswith('https://')):
+            raise ValueError
+
         if data != None:
-            request = urllib_request.Request(target_url, data)
+            request = urllib_request.Request(target_url, data) # nosec B310 (URL scheme verified above)
         else:
-            request = urllib_request.Request(target_url)
+            request = urllib_request.Request(target_url)# nosec B310 (URL scheme verified above)
 
         if self.token != None:
             request.add_header("X-SessionToken", self.token)
@@ -89,28 +95,25 @@ class Agent(object):
         self.passwd = None
         self.token = token
 
-    def handle_http_redirect(self, rid, response):
-        location = response.headers["Location"]
-        baselen = len(location) - len(rid)
-        if baselen <= 0:
-            return False
-        elif location[baselen:] != rid:
-            return False
-        else:
-            self.url = location[:baselen]
-            if self.debug:
-                print("Redirected to: " + self.url)
-            return True
+    def _handle_http_redirect(self, rid, response):
+        new_url = urlparse(response.headers["Location"])
+        self.url = '%s://%s' % (new_url.scheme, new_url.netloc)
+        if self.debug:
+            print("Redirected to: " + self.url)
+        return True
 
-    def get(self, target, redirected = False):
+    def get(self, target):
+        return self._get(target, False)
+
+    def _get(self, target, redirected):
         target_url = "%s/%s" % (self.url, target)
         request = self.__create_request(target_url)
         response = self.__open_request(request)
 
-        if response.code == 302 and not redirected:
+        if response.code in [ 302, 307 ] and not redirected:
             # handle HTTP-to-HTTPS redirect and try again
-            if self.handle_http_redirect(target, response):
-                return self.get(target, True)
+            if self._handle_http_redirect(target, response):
+                return self._get(target, True)
 
         # get and process response
         try:
@@ -126,24 +129,26 @@ class Agent(object):
 
         return resp
 
+    def form_data_file(self, target, datas):
+        return self._form_data_file(target, datas, False)
 
-    def form_data_file(self, target, datas, filenames, formnames, mimetypes, redirected = False):
+    def _form_data_file(self, target, datas, redirected):
         target_url = "%s/%s" % (self.url, target)
         request = self.__create_request(target_url)
 
         boundary = uuid.uuid4().hex
         # for certificate use key_file and cert_file
         bodyArr = []
-        for i in range(len(filenames)):
-            data = datas[i]
-            filename = filenames[i]
-            formname = formnames[i]
-            mimetype = mimetypes[i]
+        for data in datas:
+            filedata = data['data']
+            filename = data['filename']
+            formname = data['formname']
+            mimetype = data['mimetype']
             bodyArr.append('--%s' % boundary)
             bodyArr.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (formname, filename))
             bodyArr.append('Content-Type: %s' % mimetype)
             bodyArr.append('')
-            bodyArr.append(data)
+            bodyArr.append(filedata)
         bodyArr.append('--%s--' % boundary)
         body = bytes()
         for l in bodyArr:
@@ -158,10 +163,10 @@ class Agent(object):
 
         response = self.__open_request(request)
 
-        if response.code == 302 and not redirected:
+        if response.code in [ 302, 307 ] and not redirected:
             # handle HTTP-to-HTTPS redirect and try again
-            if self.handle_http_redirect(target, response):
-                return self.form_data_file(target, datas, filenames, mimetypes, True)
+            if self._handle_http_redirect(target, response):
+                return self._form_data_file(target, datas, True)
 
         # get and process response
         try:
@@ -175,7 +180,13 @@ class Agent(object):
         if (self.debug):
             print("form_data: Response:\n%s" % resp)
 
-        return response
+        # can't return the response object, because the read operation can only called once
+        # (HTTPResponse Objects are not seekable)
+        # https://docs.python.org/3/library/http.client.html#httpresponse-objects
+        return dict(
+            headers = response.headers,
+            body = resp
+        )
 
 
     def json_rpc(self, target, method, params = [], redirected = False):
@@ -186,6 +197,8 @@ class Agent(object):
         target_url = "%s/%s" % (self.url, target)
         request = self.__create_request(target_url, str.encode(request_json))
 
+        request.add_header("Content-Type", "application/json; charset=UTF-8")
+
         if self.token != None:
             request.add_header("X-SessionToken", self.token)
         elif self.user != None and self.passwd != None:
@@ -194,9 +207,9 @@ class Agent(object):
 
         response = self.__open_request(request)
 
-        if response.code == 302 and not redirected:
+        if response.code in [ 302, 307 ] and not redirected:
             # handle HTTP-to-HTTPS redirect and try again
-            if self.handle_http_redirect(target, response):
+            if self._handle_http_redirect(target, response):
                 return self.json_rpc(target, method, params, True)
 
         # get and process response

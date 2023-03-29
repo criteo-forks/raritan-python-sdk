@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -179,21 +179,21 @@ import raritan.rpc.idl
 
 # interface
 class HardwareHealth(Interface):
-    idlType = "fitness.HardwareHealth:1.0.1"
+    idlType = "fitness.HardwareHealth:1.0.2"
 
     FAILURE_TYPE_NETWORK_DEVICE_NOT_DETECTED = 1
 
     FAILURE_TYPE_I2C_BUS_STUCK = 2
 
-    FAILURE_TYPE_SLAVE_CTRL_NOT_REACHABLE = 3
+    FAILURE_TYPE_SUB_CTRL_NOT_REACHABLE = 3
 
-    FAILURE_TYPE_SLAVE_CTRL_MALFUNCTION = 4
+    FAILURE_TYPE_SUB_CTRL_MALFUNCTION = 4
 
     FAILURE_TYPE_OUTLET_POWER_STATE_INCONSISTENT = 5
 
     # structure
     class Failure(Structure):
-        idlType = "fitness.HardwareHealth_1_0_1.Failure:1.0.0"
+        idlType = "fitness.HardwareHealth_1_0_2.Failure:1.0.0"
         elements = ["creationOrderId", "componentId", "type", "description", "isAsserted", "lastAssertTimeStamp", "lastDeassertTimeStamp", "assertCount"]
 
         def __init__(self, creationOrderId, componentId, type, description, isAsserted, lastAssertTimeStamp, lastDeassertTimeStamp, assertCount):
@@ -243,7 +243,7 @@ class HardwareHealth(Interface):
 
     # value object
     class FailureStatusChangedEvent(raritan.rpc.idl.Event):
-        idlType = "fitness.HardwareHealth_1_0_1.FailureStatusChangedEvent:1.0.0"
+        idlType = "fitness.HardwareHealth_1_0_2.FailureStatusChangedEvent:1.0.0"
 
         def __init__(self, componentId, failureType, isAsserted, source):
             super(raritan.rpc.fitness.HardwareHealth.FailureStatusChangedEvent, self).__init__(source)

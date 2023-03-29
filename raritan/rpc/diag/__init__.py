@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -148,7 +148,7 @@ class DiagLogSettings(Interface):
         self.setLogLevelByCtxName = DiagLogSettings._setLogLevelByCtxName(self)
 
 # from raritan/rpc/diag/__extend__.py
-def download_diag(agent):
+def download(agent):
     """
     Method to download the diagnostic data
 
@@ -165,7 +165,7 @@ def download_diag(agent):
 
         agent = rpc.Agent("https", "my-pdu.example.com", "admin", "raritan")
         # download
-        diag = diag.download_diag(agent)
+        diag = diag.download(agent)
         print(diag)
     """
     target = "cgi-bin/diag-data.cgi"

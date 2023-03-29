@@ -7,6 +7,8 @@
 #
 
 import re
+import importlib
+import functools
 
 # TODO: generate prefix from "base-package" in config
 prefix = "raritan.rpc"
@@ -27,15 +29,17 @@ class TypeInfo(object):
         """
         pyName = "%s.%s" % (prefix, TypeInfo.typeBaseName(typeId))
         comps = pyName.split(".")
-        # remove components from end until import succeeds
-        while comps:
+        className = [comps.pop()]
+        module = None
+        # remove components from end until import succeeds, import must be inside raritan.rpc
+        while len(comps) >= 2:
             modName = ".".join(comps)
             try:
-                exec("import %s" % modName)
+                module = importlib.import_module(modName)
             except ImportError:
-                comps.pop()
+                className.insert(0, comps.pop())
                 continue
-            cls = eval(pyName)
+            cls = functools.reduce(getattr, className, module)
             return cls
         raise ImportError("Unable to find package for %s." % typeId)
 

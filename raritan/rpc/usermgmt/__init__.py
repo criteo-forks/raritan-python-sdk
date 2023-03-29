@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -486,24 +486,55 @@ class RoleManager(Interface):
 
 import raritan.rpc
 from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
-import raritan.rpc.um
-
 import raritan.rpc.usermgmt
 
 
+# enumeration
+class SnmpV3SecLevel(Enumeration):
+    idlType = "usermgmt.SnmpV3SecLevel:1.0.0"
+    values = ["NO_AUTH_NO_PRIV", "AUTH_NO_PRIV", "AUTH_PRIV"]
+
+SnmpV3SecLevel.NO_AUTH_NO_PRIV = SnmpV3SecLevel(0)
+SnmpV3SecLevel.AUTH_NO_PRIV = SnmpV3SecLevel(1)
+SnmpV3SecLevel.AUTH_PRIV = SnmpV3SecLevel(2)
+
+# enumeration
+class SnmpV3AuthProto(Enumeration):
+    idlType = "usermgmt.SnmpV3AuthProto:1.0.0"
+    values = ["MD5", "SHA1", "SHA224", "SHA256", "SHA384", "SHA512"]
+
+SnmpV3AuthProto.MD5 = SnmpV3AuthProto(0)
+SnmpV3AuthProto.SHA1 = SnmpV3AuthProto(1)
+SnmpV3AuthProto.SHA224 = SnmpV3AuthProto(2)
+SnmpV3AuthProto.SHA256 = SnmpV3AuthProto(3)
+SnmpV3AuthProto.SHA384 = SnmpV3AuthProto(4)
+SnmpV3AuthProto.SHA512 = SnmpV3AuthProto(5)
+
+# enumeration
+class SnmpV3PrivProto(Enumeration):
+    idlType = "usermgmt.SnmpV3PrivProto:1.0.0"
+    values = ["DES", "AES128", "AES192", "AES256", "AES192_3DES", "AES256_3DES"]
+
+SnmpV3PrivProto.DES = SnmpV3PrivProto(0)
+SnmpV3PrivProto.AES128 = SnmpV3PrivProto(1)
+SnmpV3PrivProto.AES192 = SnmpV3PrivProto(2)
+SnmpV3PrivProto.AES256 = SnmpV3PrivProto(3)
+SnmpV3PrivProto.AES192_3DES = SnmpV3PrivProto(4)
+SnmpV3PrivProto.AES256_3DES = SnmpV3PrivProto(5)
+
 # structure
 class SnmpV3Settings(Structure):
-    idlType = "usermgmt.SnmpV3Settings:1.0.0"
+    idlType = "usermgmt.SnmpV3Settings:2.0.0"
     elements = ["enabled", "secLevel", "authProtocol", "usePasswordAsAuthPassphrase", "haveAuthPassphrase", "authPassphrase", "privProtocol", "useAuthPassphraseAsPrivPassphrase", "havePrivPassphrase", "privPassphrase"]
 
     def __init__(self, enabled, secLevel, authProtocol, usePasswordAsAuthPassphrase, haveAuthPassphrase, authPassphrase, privProtocol, useAuthPassphraseAsPrivPassphrase, havePrivPassphrase, privPassphrase):
         typecheck.is_bool(enabled, AssertionError)
-        typecheck.is_enum(secLevel, raritan.rpc.um.SnmpV3.SecurityLevel, AssertionError)
-        typecheck.is_enum(authProtocol, raritan.rpc.um.SnmpV3.AuthProtocol, AssertionError)
+        typecheck.is_enum(secLevel, raritan.rpc.usermgmt.SnmpV3SecLevel, AssertionError)
+        typecheck.is_enum(authProtocol, raritan.rpc.usermgmt.SnmpV3AuthProto, AssertionError)
         typecheck.is_bool(usePasswordAsAuthPassphrase, AssertionError)
         typecheck.is_bool(haveAuthPassphrase, AssertionError)
         typecheck.is_string(authPassphrase, AssertionError)
-        typecheck.is_enum(privProtocol, raritan.rpc.um.SnmpV3.PrivProtocol, AssertionError)
+        typecheck.is_enum(privProtocol, raritan.rpc.usermgmt.SnmpV3PrivProto, AssertionError)
         typecheck.is_bool(useAuthPassphraseAsPrivPassphrase, AssertionError)
         typecheck.is_bool(havePrivPassphrase, AssertionError)
         typecheck.is_string(privPassphrase, AssertionError)
@@ -523,12 +554,12 @@ class SnmpV3Settings(Structure):
     def decode(cls, json, agent):
         obj = cls(
             enabled = json['enabled'],
-            secLevel = raritan.rpc.um.SnmpV3.SecurityLevel.decode(json['secLevel']),
-            authProtocol = raritan.rpc.um.SnmpV3.AuthProtocol.decode(json['authProtocol']),
+            secLevel = raritan.rpc.usermgmt.SnmpV3SecLevel.decode(json['secLevel']),
+            authProtocol = raritan.rpc.usermgmt.SnmpV3AuthProto.decode(json['authProtocol']),
             usePasswordAsAuthPassphrase = json['usePasswordAsAuthPassphrase'],
             haveAuthPassphrase = json['haveAuthPassphrase'],
             authPassphrase = json['authPassphrase'],
-            privProtocol = raritan.rpc.um.SnmpV3.PrivProtocol.decode(json['privProtocol']),
+            privProtocol = raritan.rpc.usermgmt.SnmpV3PrivProto.decode(json['privProtocol']),
             useAuthPassphraseAsPrivPassphrase = json['useAuthPassphraseAsPrivPassphrase'],
             havePrivPassphrase = json['havePrivPassphrase'],
             privPassphrase = json['privPassphrase'],
@@ -538,12 +569,12 @@ class SnmpV3Settings(Structure):
     def encode(self):
         json = {}
         json['enabled'] = self.enabled
-        json['secLevel'] = raritan.rpc.um.SnmpV3.SecurityLevel.encode(self.secLevel)
-        json['authProtocol'] = raritan.rpc.um.SnmpV3.AuthProtocol.encode(self.authProtocol)
+        json['secLevel'] = raritan.rpc.usermgmt.SnmpV3SecLevel.encode(self.secLevel)
+        json['authProtocol'] = raritan.rpc.usermgmt.SnmpV3AuthProto.encode(self.authProtocol)
         json['usePasswordAsAuthPassphrase'] = self.usePasswordAsAuthPassphrase
         json['haveAuthPassphrase'] = self.haveAuthPassphrase
         json['authPassphrase'] = self.authPassphrase
-        json['privProtocol'] = raritan.rpc.um.SnmpV3.PrivProtocol.encode(self.privProtocol)
+        json['privProtocol'] = raritan.rpc.usermgmt.SnmpV3PrivProto.encode(self.privProtocol)
         json['useAuthPassphraseAsPrivPassphrase'] = self.useAuthPassphraseAsPrivPassphrase
         json['havePrivPassphrase'] = self.havePrivPassphrase
         json['privPassphrase'] = self.privPassphrase
@@ -635,7 +666,7 @@ class Preferences(Structure):
 
 # structure
 class UserInfo(Structure):
-    idlType = "usermgmt.UserInfo:1.0.0"
+    idlType = "usermgmt.UserInfo:2.0.0"
     elements = ["enabled", "locked", "blocked", "needPasswordChange", "auxInfo", "snmpV3Settings", "sshPublicKey", "preferences", "roleIds"]
 
     def __init__(self, enabled, locked, blocked, needPasswordChange, auxInfo, snmpV3Settings, sshPublicKey, preferences, roleIds):
@@ -716,7 +747,7 @@ class UserCapabilities(Structure):
 
 # interface
 class User(Interface):
-    idlType = "usermgmt.User:1.0.2"
+    idlType = "usermgmt.User:2.0.0"
 
     ERR_PASSWORD_UNCHANGED = 1
 
@@ -868,7 +899,7 @@ import raritan.rpc.usermgmt
 
 # structure
 class Account(Structure):
-    idlType = "usermgmt.Account:1.0.0"
+    idlType = "usermgmt.Account:2.0.0"
     elements = ["name", "info"]
 
     def __init__(self, name, info):
@@ -954,6 +985,40 @@ class AccountAdded(AccountEvent):
         return elements
 
 # value object
+class AccountRenamed(AccountEvent):
+    idlType = "usermgmt.AccountRenamed:1.0.0"
+
+    def __init__(self, newUsername, username, actUserName, actIpAddr, source):
+        super(raritan.rpc.usermgmt.AccountRenamed, self).__init__(username, actUserName, actIpAddr, source)
+        typecheck.is_string(newUsername, AssertionError)
+
+        self.newUsername = newUsername
+
+    def encode(self):
+        json = super(raritan.rpc.usermgmt.AccountRenamed, self).encode()
+        json['newUsername'] = self.newUsername
+        return json
+
+    @classmethod
+    def decode(cls, json, agent):
+        obj = cls(
+            newUsername = json['newUsername'],
+            # for usermgmt.AccountEvent
+            username = json['username'],
+            # for event.UserEvent
+            actUserName = json['actUserName'],
+            actIpAddr = json['actIpAddr'],
+            # for idl.Event
+            source = Interface.decode(json['source'], agent),
+        )
+        return obj
+
+    def listElements(self):
+        elements = ["newUsername"]
+        elements = elements + super(raritan.rpc.usermgmt.AccountRenamed, self).listElements()
+        return elements
+
+# value object
 class AccountRemoved(AccountEvent):
     idlType = "usermgmt.AccountRemoved:1.0.0"
 
@@ -1013,7 +1078,7 @@ class PasswordChanged(AccountEvent):
 
 # value object
 class AccountChanged(AccountEvent):
-    idlType = "usermgmt.AccountChanged:1.0.0"
+    idlType = "usermgmt.AccountChanged:2.0.0"
 
     def __init__(self, oldSettings, newSettings, username, actUserName, actIpAddr, source):
         super(raritan.rpc.usermgmt.AccountChanged, self).__init__(username, actUserName, actIpAddr, source)
@@ -1051,7 +1116,7 @@ class AccountChanged(AccountEvent):
 
 # interface
 class UserManager(Interface):
-    idlType = "usermgmt.UserManager:1.0.4"
+    idlType = "usermgmt.UserManager:2.0.0"
 
     ERR_USER_DOESNT_EXIST = 1
 
@@ -1091,6 +1156,8 @@ class UserManager(Interface):
 
     ERR_USERNAME_INVALID = 18
 
+    ERR_NEW_USER_ALREADY_EXISTS = 19
+
     class _getAccountNames(Interface.Method):
         name = 'getAccountNames'
 
@@ -1116,6 +1183,24 @@ class UserManager(Interface):
             args = {}
             args['username'] = username
             args['password'] = password
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_int(_ret_, DecodeException)
+            return _ret_
+
+    class _renameAccount(Interface.Method):
+        name = 'renameAccount'
+
+        @staticmethod
+        def encode(username, newUsername):
+            typecheck.is_string(username, AssertionError)
+            typecheck.is_string(newUsername, AssertionError)
+            args = {}
+            args['username'] = username
+            args['newUsername'] = newUsername
             return args
 
         @staticmethod
@@ -1225,6 +1310,7 @@ class UserManager(Interface):
         super(UserManager, self).__init__(target, agent)
         self.getAccountNames = UserManager._getAccountNames(self)
         self.createAccount = UserManager._createAccount(self)
+        self.renameAccount = UserManager._renameAccount(self)
         self.deleteAccount = UserManager._deleteAccount(self)
         self.getAllAccounts = UserManager._getAllAccounts(self)
         self.createAccountFull = UserManager._createAccountFull(self)

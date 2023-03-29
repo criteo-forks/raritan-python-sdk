@@ -16,11 +16,11 @@ class Time(datetime):
 
     @staticmethod
     def decode(json):
-        assert isinstance(json, int)
+        if not isinstance(json, int): raise ValueError
         return Time.utcfromtimestamp(json)
 
     def encode(self):
-        timestamp = calendar.timegm(self.utctimetuple()) 
+        timestamp = calendar.timegm(self.utctimetuple())
         return timestamp
 
     def __str__(self):

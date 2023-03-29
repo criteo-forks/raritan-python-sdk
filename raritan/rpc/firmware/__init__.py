@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -415,7 +415,7 @@ class FirmwareUpdateFailedEvent(FirmwareUpdateEvent):
 
 # interface
 class Firmware(Interface):
-    idlType = "firmware.Firmware:2.0.1"
+    idlType = "firmware.Firmware:2.0.2"
 
     class _reboot(Interface.Method):
         name = 'reboot'
@@ -443,6 +443,20 @@ class Firmware(Interface):
 
     class _hardFactoryReset(Interface.Method):
         name = 'hardFactoryReset'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_int(_ret_, DecodeException)
+            return _ret_
+
+    class _manufacturingReset(Interface.Method):
+        name = 'manufacturingReset'
 
         @staticmethod
         def encode():
@@ -545,6 +559,7 @@ class Firmware(Interface):
         self.reboot = Firmware._reboot(self)
         self.factoryReset = Firmware._factoryReset(self)
         self.hardFactoryReset = Firmware._hardFactoryReset(self)
+        self.manufacturingReset = Firmware._manufacturingReset(self)
         self.getVersion = Firmware._getVersion(self)
         self.getUpdateHistory = Firmware._getUpdateHistory(self)
         self.getImageStatus = Firmware._getImageStatus(self)
@@ -617,7 +632,7 @@ class FirmwareUpdateStatus(Interface):
         self.getStatus = FirmwareUpdateStatus._getStatus(self)
 
 # from raritan/rpc/firmware/__extend__.py
-def upload(agent, data):
+def upload(agent, data, lowMemoryUploadOptions = None):
     """
     Method to upload firmware images
 
@@ -625,6 +640,7 @@ def upload(agent, data):
 
     :param agent: An agent instance for the device where the image should be uploaded
     :param data: The binary data of the firmware image
+    :param lowMemoryUploadOptions: optional, set options for low memory upload
 
     **Example**
         :Example:
@@ -641,5 +657,16 @@ def upload(agent, data):
         firmware.upload(agent, fwFile.read())
 
     """
-    target = "cgi-bin/fwupload.cgi"
-    agent.form_data_file(target, [data], ["upfile.bin"], ["upfile"], ["application/octet-stream"])
+
+    lowMemoryUploadParams = ""
+    if lowMemoryUploadOptions:
+        lowMemoryUpload = lowMemoryUploadOptions.get("lowMemoryUpload", "0")
+        allowLowMemoryDowngrade = lowMemoryUploadOptions.get("allowLowMemoryDowngrade", "0")
+        allowLowMemoryUntrusted = lowMemoryUploadOptions.get("allowLowMemoryUntrusted", "0")
+
+        lowMemoryUploadParams = "?lowMemoryUpload={0}&allowLowMemoryDowngrade={1}&allowLowMemoryUntrusted={2}" \
+                                .format(lowMemoryUpload, allowLowMemoryDowngrade, allowLowMemoryUntrusted)
+
+    target = "cgi-bin/fwupload.cgi" + lowMemoryUploadParams
+    formdata = [dict(data=data, filename="upfile.bin", formname="upfile", mimetype="application/octet-stream")]
+    agent.form_data_file(target, formdata)

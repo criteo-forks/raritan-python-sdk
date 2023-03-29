@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 

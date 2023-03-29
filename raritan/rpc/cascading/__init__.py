@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -19,13 +19,13 @@ import raritan.rpc.idl
 
 # interface
 class CascadeManager(Interface):
-    idlType = "cascading.CascadeManager:1.0.0"
+    idlType = "cascading.CascadeManager:2.0.1"
 
     NO_ERROR = 0
 
     ERR_INVALID_PARAM = 1
 
-    ERR_UNSUPPORTED_ON_MASTER = 2
+    ERR_UNSUPPORTED_ON_PRIMARY_UNIT = 2
 
     ERR_UNSUPPORTED_ON_LINK_UNIT = 3
 
@@ -47,71 +47,121 @@ class CascadeManager(Interface):
 
     ERR_PASSWORD_POLICY = 12
 
+    ERR_LINK_UNIT_COMM_FAILED = 13
+
+    ERR_LINK_UNIT_NOT_SUPPORTED = 14
+
+    ERR_FIRMWARE_VERSION_MISMATCH = 15
+
+    # structure
+    class PrimaryUnitSettings(Structure):
+        idlType = "cascading.CascadeManager_2_0_1.PrimaryUnitSettings:1.0.0"
+        elements = ["caCertChain", "allowOffTimeRangeCerts"]
+
+        def __init__(self, caCertChain, allowOffTimeRangeCerts):
+            typecheck.is_string(caCertChain, AssertionError)
+            typecheck.is_bool(allowOffTimeRangeCerts, AssertionError)
+
+            self.caCertChain = caCertChain
+            self.allowOffTimeRangeCerts = allowOffTimeRangeCerts
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                caCertChain = json['caCertChain'],
+                allowOffTimeRangeCerts = json['allowOffTimeRangeCerts'],
+            )
+            return obj
+
+        def encode(self):
+            json = {}
+            json['caCertChain'] = self.caCertChain
+            json['allowOffTimeRangeCerts'] = self.allowOffTimeRangeCerts
+            return json
+
     # enumeration
     class Role(Enumeration):
-        idlType = "cascading.CascadeManager.Role:1.0.0"
-        values = ["STANDALONE", "MASTER", "LINK_UNIT"]
+        idlType = "cascading.CascadeManager_2_0_1.Role:1.0.0"
+        values = ["STANDALONE", "PRIMARY_UNIT", "LINK_UNIT"]
 
     Role.STANDALONE = Role(0)
-    Role.MASTER = Role(1)
+    Role.PRIMARY_UNIT = Role(1)
     Role.LINK_UNIT = Role(2)
 
     # enumeration
+    class LinkUnitType(Enumeration):
+        idlType = "cascading.CascadeManager_2_0_1.LinkUnitType:1.0.0"
+        values = ["NETWORK", "SECURE_SERIAL"]
+
+    LinkUnitType.NETWORK = LinkUnitType(0)
+    LinkUnitType.SECURE_SERIAL = LinkUnitType(1)
+
+    # enumeration
     class LinkUnitStatus(Enumeration):
-        idlType = "cascading.CascadeManager.LinkUnitStatus:1.0.0"
-        values = ["UNKNOWN", "OK", "UNREACHABLE", "ACCESS_DENIED", "FIRMWARE_UPDATE"]
+        idlType = "cascading.CascadeManager_2_0_1.LinkUnitStatus:1.0.0"
+        values = ["UNKNOWN", "OK", "UNREACHABLE", "ACCESS_DENIED", "FIRMWARE_UPDATE", "FIRMWARE_MISMATCH", "PENDING"]
 
     LinkUnitStatus.UNKNOWN = LinkUnitStatus(0)
     LinkUnitStatus.OK = LinkUnitStatus(1)
     LinkUnitStatus.UNREACHABLE = LinkUnitStatus(2)
     LinkUnitStatus.ACCESS_DENIED = LinkUnitStatus(3)
     LinkUnitStatus.FIRMWARE_UPDATE = LinkUnitStatus(4)
+    LinkUnitStatus.FIRMWARE_MISMATCH = LinkUnitStatus(5)
+    LinkUnitStatus.PENDING = LinkUnitStatus(6)
     LinkUnitStatus._fallback = LinkUnitStatus.UNKNOWN
 
     # structure
     class LinkUnit(Structure):
-        idlType = "cascading.CascadeManager.LinkUnit:1.0.0"
-        elements = ["host", "status"]
+        idlType = "cascading.CascadeManager_2_0_1.LinkUnit:1.0.0"
+        elements = ["type", "host", "status", "fwVersion"]
 
-        def __init__(self, host, status):
+        def __init__(self, type, host, status, fwVersion):
+            typecheck.is_enum(type, raritan.rpc.cascading.CascadeManager.LinkUnitType, AssertionError)
             typecheck.is_string(host, AssertionError)
             typecheck.is_enum(status, raritan.rpc.cascading.CascadeManager.LinkUnitStatus, AssertionError)
+            typecheck.is_string(fwVersion, AssertionError)
 
+            self.type = type
             self.host = host
             self.status = status
+            self.fwVersion = fwVersion
 
         @classmethod
         def decode(cls, json, agent):
             obj = cls(
+                type = raritan.rpc.cascading.CascadeManager.LinkUnitType.decode(json['type']),
                 host = json['host'],
                 status = raritan.rpc.cascading.CascadeManager.LinkUnitStatus.decode(json['status']),
+                fwVersion = json['fwVersion'],
             )
             return obj
 
         def encode(self):
             json = {}
+            json['type'] = raritan.rpc.cascading.CascadeManager.LinkUnitType.encode(self.type)
             json['host'] = self.host
             json['status'] = raritan.rpc.cascading.CascadeManager.LinkUnitStatus.encode(self.status)
+            json['fwVersion'] = self.fwVersion
             return json
 
     # structure
     class Status(Structure):
-        idlType = "cascading.CascadeManager.Status:1.0.0"
-        elements = ["role", "master", "linkUnits"]
+        idlType = "cascading.CascadeManager_2_0_1.Status:1.0.0"
+        elements = ["role", "primaryUnit", "linkUnits"]
 
-        def __init__(self, role, master, linkUnits):
+        def __init__(self, role, primaryUnit, linkUnits):
             typecheck.is_enum(role, raritan.rpc.cascading.CascadeManager.Role, AssertionError)
-            typecheck.is_string(master, AssertionError)
+            typecheck.is_string(primaryUnit, AssertionError)
 
             self.role = role
-            self.master = master
+            self.primaryUnit = primaryUnit
             self.linkUnits = linkUnits
 
         @classmethod
         def decode(cls, json, agent):
             obj = cls(
                 role = raritan.rpc.cascading.CascadeManager.Role.decode(json['role']),
-                master = json['master'],
+                primaryUnit = json['primaryUnit'],
                 linkUnits = dict([(
                     elem['key'],
                     raritan.rpc.cascading.CascadeManager.LinkUnit.decode(elem['value'], agent))
@@ -122,32 +172,62 @@ class CascadeManager(Interface):
         def encode(self):
             json = {}
             json['role'] = raritan.rpc.cascading.CascadeManager.Role.encode(self.role)
-            json['master'] = self.master
+            json['primaryUnit'] = self.primaryUnit
             json['linkUnits'] = [dict(
                 key = k,
                 value = raritan.rpc.cascading.CascadeManager.LinkUnit.encode(v))
                 for k, v in self.linkUnits.items()]
             return json
 
+    # structure
+    class LinkPortStatus(Structure):
+        idlType = "cascading.CascadeManager_2_0_1.LinkPortStatus:1.0.0"
+        elements = ["isSupported", "isLinkDetected", "isLinkingConfirmationNeeded"]
+
+        def __init__(self, isSupported, isLinkDetected, isLinkingConfirmationNeeded):
+            typecheck.is_bool(isSupported, AssertionError)
+            typecheck.is_bool(isLinkDetected, AssertionError)
+            typecheck.is_bool(isLinkingConfirmationNeeded, AssertionError)
+
+            self.isSupported = isSupported
+            self.isLinkDetected = isLinkDetected
+            self.isLinkingConfirmationNeeded = isLinkingConfirmationNeeded
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                isSupported = json['isSupported'],
+                isLinkDetected = json['isLinkDetected'],
+                isLinkingConfirmationNeeded = json['isLinkingConfirmationNeeded'],
+            )
+            return obj
+
+        def encode(self):
+            json = {}
+            json['isSupported'] = self.isSupported
+            json['isLinkDetected'] = self.isLinkDetected
+            json['isLinkingConfirmationNeeded'] = self.isLinkingConfirmationNeeded
+            return json
+
     # value object
     class RoleChangedEvent(raritan.rpc.idl.Event):
-        idlType = "cascading.CascadeManager.RoleChangedEvent:1.0.0"
+        idlType = "cascading.CascadeManager_2_0_1.RoleChangedEvent:1.0.0"
 
-        def __init__(self, oldRole, newRole, master, source):
+        def __init__(self, oldRole, newRole, primaryUnit, source):
             super(raritan.rpc.cascading.CascadeManager.RoleChangedEvent, self).__init__(source)
             typecheck.is_enum(oldRole, raritan.rpc.cascading.CascadeManager.Role, AssertionError)
             typecheck.is_enum(newRole, raritan.rpc.cascading.CascadeManager.Role, AssertionError)
-            typecheck.is_string(master, AssertionError)
+            typecheck.is_string(primaryUnit, AssertionError)
 
             self.oldRole = oldRole
             self.newRole = newRole
-            self.master = master
+            self.primaryUnit = primaryUnit
 
         def encode(self):
             json = super(raritan.rpc.cascading.CascadeManager.RoleChangedEvent, self).encode()
             json['oldRole'] = raritan.rpc.cascading.CascadeManager.Role.encode(self.oldRole)
             json['newRole'] = raritan.rpc.cascading.CascadeManager.Role.encode(self.newRole)
-            json['master'] = self.master
+            json['primaryUnit'] = self.primaryUnit
             return json
 
         @classmethod
@@ -155,32 +235,35 @@ class CascadeManager(Interface):
             obj = cls(
                 oldRole = raritan.rpc.cascading.CascadeManager.Role.decode(json['oldRole']),
                 newRole = raritan.rpc.cascading.CascadeManager.Role.decode(json['newRole']),
-                master = json['master'],
+                primaryUnit = json['primaryUnit'],
                 # for idl.Event
                 source = Interface.decode(json['source'], agent),
             )
             return obj
 
         def listElements(self):
-            elements = ["oldRole", "newRole", "master"]
+            elements = ["oldRole", "newRole", "primaryUnit"]
             elements = elements + super(raritan.rpc.cascading.CascadeManager.RoleChangedEvent, self).listElements()
             return elements
 
     # value object
     class LinkUnitAddedEvent(raritan.rpc.event.UserEvent):
-        idlType = "cascading.CascadeManager.LinkUnitAddedEvent:1.0.0"
+        idlType = "cascading.CascadeManager_2_0_1.LinkUnitAddedEvent:1.0.0"
 
-        def __init__(self, linkId, host, actUserName, actIpAddr, source):
+        def __init__(self, linkId, type, host, actUserName, actIpAddr, source):
             super(raritan.rpc.cascading.CascadeManager.LinkUnitAddedEvent, self).__init__(actUserName, actIpAddr, source)
             typecheck.is_int(linkId, AssertionError)
+            typecheck.is_enum(type, raritan.rpc.cascading.CascadeManager.LinkUnitType, AssertionError)
             typecheck.is_string(host, AssertionError)
 
             self.linkId = linkId
+            self.type = type
             self.host = host
 
         def encode(self):
             json = super(raritan.rpc.cascading.CascadeManager.LinkUnitAddedEvent, self).encode()
             json['linkId'] = self.linkId
+            json['type'] = raritan.rpc.cascading.CascadeManager.LinkUnitType.encode(self.type)
             json['host'] = self.host
             return json
 
@@ -188,6 +271,7 @@ class CascadeManager(Interface):
         def decode(cls, json, agent):
             obj = cls(
                 linkId = json['linkId'],
+                type = raritan.rpc.cascading.CascadeManager.LinkUnitType.decode(json['type']),
                 host = json['host'],
                 # for event.UserEvent
                 actUserName = json['actUserName'],
@@ -198,25 +282,28 @@ class CascadeManager(Interface):
             return obj
 
         def listElements(self):
-            elements = ["linkId", "host"]
+            elements = ["linkId", "type", "host"]
             elements = elements + super(raritan.rpc.cascading.CascadeManager.LinkUnitAddedEvent, self).listElements()
             return elements
 
     # value object
     class LinkUnitReleasedEvent(raritan.rpc.event.UserEvent):
-        idlType = "cascading.CascadeManager.LinkUnitReleasedEvent:1.0.0"
+        idlType = "cascading.CascadeManager_2_0_1.LinkUnitReleasedEvent:1.0.0"
 
-        def __init__(self, linkId, host, actUserName, actIpAddr, source):
+        def __init__(self, linkId, type, host, actUserName, actIpAddr, source):
             super(raritan.rpc.cascading.CascadeManager.LinkUnitReleasedEvent, self).__init__(actUserName, actIpAddr, source)
             typecheck.is_int(linkId, AssertionError)
+            typecheck.is_enum(type, raritan.rpc.cascading.CascadeManager.LinkUnitType, AssertionError)
             typecheck.is_string(host, AssertionError)
 
             self.linkId = linkId
+            self.type = type
             self.host = host
 
         def encode(self):
             json = super(raritan.rpc.cascading.CascadeManager.LinkUnitReleasedEvent, self).encode()
             json['linkId'] = self.linkId
+            json['type'] = raritan.rpc.cascading.CascadeManager.LinkUnitType.encode(self.type)
             json['host'] = self.host
             return json
 
@@ -224,6 +311,7 @@ class CascadeManager(Interface):
         def decode(cls, json, agent):
             obj = cls(
                 linkId = json['linkId'],
+                type = raritan.rpc.cascading.CascadeManager.LinkUnitType.decode(json['type']),
                 host = json['host'],
                 # for event.UserEvent
                 actUserName = json['actUserName'],
@@ -234,22 +322,24 @@ class CascadeManager(Interface):
             return obj
 
         def listElements(self):
-            elements = ["linkId", "host"]
+            elements = ["linkId", "type", "host"]
             elements = elements + super(raritan.rpc.cascading.CascadeManager.LinkUnitReleasedEvent, self).listElements()
             return elements
 
     # value object
     class LinkUnitStatusChangedEvent(raritan.rpc.idl.Event):
-        idlType = "cascading.CascadeManager.LinkUnitStatusChangedEvent:1.0.0"
+        idlType = "cascading.CascadeManager_2_0_1.LinkUnitStatusChangedEvent:1.0.0"
 
-        def __init__(self, linkId, host, oldStatus, newStatus, source):
+        def __init__(self, linkId, type, host, oldStatus, newStatus, source):
             super(raritan.rpc.cascading.CascadeManager.LinkUnitStatusChangedEvent, self).__init__(source)
             typecheck.is_int(linkId, AssertionError)
+            typecheck.is_enum(type, raritan.rpc.cascading.CascadeManager.LinkUnitType, AssertionError)
             typecheck.is_string(host, AssertionError)
             typecheck.is_enum(oldStatus, raritan.rpc.cascading.CascadeManager.LinkUnitStatus, AssertionError)
             typecheck.is_enum(newStatus, raritan.rpc.cascading.CascadeManager.LinkUnitStatus, AssertionError)
 
             self.linkId = linkId
+            self.type = type
             self.host = host
             self.oldStatus = oldStatus
             self.newStatus = newStatus
@@ -257,6 +347,7 @@ class CascadeManager(Interface):
         def encode(self):
             json = super(raritan.rpc.cascading.CascadeManager.LinkUnitStatusChangedEvent, self).encode()
             json['linkId'] = self.linkId
+            json['type'] = raritan.rpc.cascading.CascadeManager.LinkUnitType.encode(self.type)
             json['host'] = self.host
             json['oldStatus'] = raritan.rpc.cascading.CascadeManager.LinkUnitStatus.encode(self.oldStatus)
             json['newStatus'] = raritan.rpc.cascading.CascadeManager.LinkUnitStatus.encode(self.newStatus)
@@ -266,6 +357,7 @@ class CascadeManager(Interface):
         def decode(cls, json, agent):
             obj = cls(
                 linkId = json['linkId'],
+                type = raritan.rpc.cascading.CascadeManager.LinkUnitType.decode(json['type']),
                 host = json['host'],
                 oldStatus = raritan.rpc.cascading.CascadeManager.LinkUnitStatus.decode(json['oldStatus']),
                 newStatus = raritan.rpc.cascading.CascadeManager.LinkUnitStatus.decode(json['newStatus']),
@@ -275,9 +367,72 @@ class CascadeManager(Interface):
             return obj
 
         def listElements(self):
-            elements = ["linkId", "host", "oldStatus", "newStatus"]
+            elements = ["linkId", "type", "host", "oldStatus", "newStatus"]
             elements = elements + super(raritan.rpc.cascading.CascadeManager.LinkUnitStatusChangedEvent, self).listElements()
             return elements
+
+    # value object
+    class LinkPortStatusChangedEvent(raritan.rpc.idl.Event):
+        idlType = "cascading.CascadeManager_2_0_1.LinkPortStatusChangedEvent:1.0.0"
+
+        def __init__(self, oldStatus, newStatus, source):
+            super(raritan.rpc.cascading.CascadeManager.LinkPortStatusChangedEvent, self).__init__(source)
+            typecheck.is_struct(oldStatus, raritan.rpc.cascading.CascadeManager.LinkPortStatus, AssertionError)
+            typecheck.is_struct(newStatus, raritan.rpc.cascading.CascadeManager.LinkPortStatus, AssertionError)
+
+            self.oldStatus = oldStatus
+            self.newStatus = newStatus
+
+        def encode(self):
+            json = super(raritan.rpc.cascading.CascadeManager.LinkPortStatusChangedEvent, self).encode()
+            json['oldStatus'] = raritan.rpc.cascading.CascadeManager.LinkPortStatus.encode(self.oldStatus)
+            json['newStatus'] = raritan.rpc.cascading.CascadeManager.LinkPortStatus.encode(self.newStatus)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                oldStatus = raritan.rpc.cascading.CascadeManager.LinkPortStatus.decode(json['oldStatus'], agent),
+                newStatus = raritan.rpc.cascading.CascadeManager.LinkPortStatus.decode(json['newStatus'], agent),
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["oldStatus", "newStatus"]
+            elements = elements + super(raritan.rpc.cascading.CascadeManager.LinkPortStatusChangedEvent, self).listElements()
+            return elements
+
+    class _getPrimaryUnitSettings(Interface.Method):
+        name = 'getPrimaryUnitSettings'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = raritan.rpc.cascading.CascadeManager.PrimaryUnitSettings.decode(rsp['_ret_'], agent)
+            typecheck.is_struct(_ret_, raritan.rpc.cascading.CascadeManager.PrimaryUnitSettings, DecodeException)
+            return _ret_
+
+    class _setPrimaryUnitSettings(Interface.Method):
+        name = 'setPrimaryUnitSettings'
+
+        @staticmethod
+        def encode(primaryUnitSettings):
+            typecheck.is_struct(primaryUnitSettings, raritan.rpc.cascading.CascadeManager.PrimaryUnitSettings, AssertionError)
+            args = {}
+            args['primaryUnitSettings'] = raritan.rpc.cascading.CascadeManager.PrimaryUnitSettings.encode(primaryUnitSettings)
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_int(_ret_, DecodeException)
+            return _ret_
 
     class _getStatus(Interface.Method):
         name = 'getStatus'
@@ -291,6 +446,20 @@ class CascadeManager(Interface):
         def decode(rsp, agent):
             _ret_ = raritan.rpc.cascading.CascadeManager.Status.decode(rsp['_ret_'], agent)
             typecheck.is_struct(_ret_, raritan.rpc.cascading.CascadeManager.Status, DecodeException)
+            return _ret_
+
+    class _getLinkPortStatus(Interface.Method):
+        name = 'getLinkPortStatus'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = raritan.rpc.cascading.CascadeManager.LinkPortStatus.decode(rsp['_ret_'], agent)
+            typecheck.is_struct(_ret_, raritan.rpc.cascading.CascadeManager.LinkPortStatus, DecodeException)
             return _ret_
 
     class _addLinkUnit(Interface.Method):
@@ -374,11 +543,105 @@ class CascadeManager(Interface):
         @staticmethod
         def decode(rsp, agent):
             return None
+
+    class _getSupportedRoles(Interface.Method):
+        name = 'getSupportedRoles'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = [raritan.rpc.cascading.CascadeManager.Role.decode(x0) for x0 in rsp['_ret_']]
+            for x0 in _ret_:
+                typecheck.is_enum(x0, raritan.rpc.cascading.CascadeManager.Role, DecodeException)
+            return _ret_
+
+    class _getSupportedLinkUnitTypes(Interface.Method):
+        name = 'getSupportedLinkUnitTypes'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = [raritan.rpc.cascading.CascadeManager.LinkUnitType.decode(x0) for x0 in rsp['_ret_']]
+            for x0 in _ret_:
+                typecheck.is_enum(x0, raritan.rpc.cascading.CascadeManager.LinkUnitType, DecodeException)
+            return _ret_
+
+    class _addCascadeLinkUnit(Interface.Method):
+        name = 'addCascadeLinkUnit'
+
+        @staticmethod
+        def encode(linkId, nodeIndex, login, password, positionDependent):
+            typecheck.is_int(linkId, AssertionError)
+            typecheck.is_int(nodeIndex, AssertionError)
+            typecheck.is_string(login, AssertionError)
+            typecheck.is_string(password, AssertionError)
+            typecheck.is_bool(positionDependent, AssertionError)
+            args = {}
+            args['linkId'] = linkId
+            args['nodeIndex'] = nodeIndex
+            args['login'] = login
+            args['password'] = password
+            args['positionDependent'] = positionDependent
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_int(_ret_, DecodeException)
+            return _ret_
+
+    class _addLinkPortLinkUnit(Interface.Method):
+        name = 'addLinkPortLinkUnit'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_int(_ret_, DecodeException)
+            return _ret_
+
+    class _addSecureSerialLinkUnit(Interface.Method):
+        name = 'addSecureSerialLinkUnit'
+
+        @staticmethod
+        def encode(linkId, installKey):
+            typecheck.is_int(linkId, AssertionError)
+            typecheck.is_string(installKey, AssertionError)
+            args = {}
+            args['linkId'] = linkId
+            args['installKey'] = installKey
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_int(_ret_, DecodeException)
+            return _ret_
     def __init__(self, target, agent):
         super(CascadeManager, self).__init__(target, agent)
+        self.getPrimaryUnitSettings = CascadeManager._getPrimaryUnitSettings(self)
+        self.setPrimaryUnitSettings = CascadeManager._setPrimaryUnitSettings(self)
         self.getStatus = CascadeManager._getStatus(self)
+        self.getLinkPortStatus = CascadeManager._getLinkPortStatus(self)
         self.addLinkUnit = CascadeManager._addLinkUnit(self)
         self.releaseLinkUnit = CascadeManager._releaseLinkUnit(self)
         self.requestLink = CascadeManager._requestLink(self)
         self.finalizeLink = CascadeManager._finalizeLink(self)
         self.unlink = CascadeManager._unlink(self)
+        self.getSupportedRoles = CascadeManager._getSupportedRoles(self)
+        self.getSupportedLinkUnitTypes = CascadeManager._getSupportedLinkUnitTypes(self)
+        self.addCascadeLinkUnit = CascadeManager._addCascadeLinkUnit(self)
+        self.addLinkPortLinkUnit = CascadeManager._addLinkPortLinkUnit(self)
+        self.addSecureSerialLinkUnit = CascadeManager._addSecureSerialLinkUnit(self)

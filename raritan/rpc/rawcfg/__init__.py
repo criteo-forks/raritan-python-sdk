@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -10,16 +10,18 @@
 
 import raritan.rpc
 from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
+import raritan.rpc.event
+
 import raritan.rpc.rawcfg
 
 
 # interface
 class RawConfiguration(Interface):
-    idlType = "rawcfg.RawConfiguration:1.0.0"
+    idlType = "rawcfg.RawConfiguration:1.0.1"
 
     # enumeration
     class Status(Enumeration):
-        idlType = "rawcfg.RawConfiguration.Status:1.0.0"
+        idlType = "rawcfg.RawConfiguration_1_0_1.Status:1.0.0"
         values = ["UNKNOWN", "UPLOAD_FAILED", "UPDATE_PENDING", "UPDATE_OK", "UPDATE_FAILED"]
 
     Status.UNKNOWN = Status(0)
@@ -43,6 +45,60 @@ class RawConfiguration(Interface):
             typecheck.is_enum(status, raritan.rpc.rawcfg.RawConfiguration.Status, DecodeException)
             typecheck.is_time(timeStamp, DecodeException)
             return (status, timeStamp)
+
+    # value object
+    class RawConfigDownloadedEvent(raritan.rpc.event.UserEvent):
+        idlType = "rawcfg.RawConfiguration_1_0_1.RawConfigDownloadedEvent:1.0.0"
+
+        def __init__(self, actUserName, actIpAddr, source):
+            super(raritan.rpc.rawcfg.RawConfiguration.RawConfigDownloadedEvent, self).__init__(actUserName, actIpAddr, source)
+
+        def encode(self):
+            json = super(raritan.rpc.rawcfg.RawConfiguration.RawConfigDownloadedEvent, self).encode()
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                # for event.UserEvent
+                actUserName = json['actUserName'],
+                actIpAddr = json['actIpAddr'],
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = []
+            elements = elements + super(raritan.rpc.rawcfg.RawConfiguration.RawConfigDownloadedEvent, self).listElements()
+            return elements
+
+    # value object
+    class RawConfigUpdatedEvent(raritan.rpc.event.UserEvent):
+        idlType = "rawcfg.RawConfiguration_1_0_1.RawConfigUpdatedEvent:1.0.0"
+
+        def __init__(self, actUserName, actIpAddr, source):
+            super(raritan.rpc.rawcfg.RawConfiguration.RawConfigUpdatedEvent, self).__init__(actUserName, actIpAddr, source)
+
+        def encode(self):
+            json = super(raritan.rpc.rawcfg.RawConfiguration.RawConfigUpdatedEvent, self).encode()
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                # for event.UserEvent
+                actUserName = json['actUserName'],
+                actIpAddr = json['actIpAddr'],
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = []
+            elements = elements + super(raritan.rpc.rawcfg.RawConfiguration.RawConfigUpdatedEvent, self).listElements()
+            return elements
     def __init__(self, target, agent):
         super(RawConfiguration, self).__init__(target, agent)
         self.getStatus = RawConfiguration._getStatus(self)
@@ -75,10 +131,11 @@ def upload(agent, data):
 
     """
     target = "cgi-bin/raw_config_update.cgi"
-    response = agent.form_data_file(target, [data], ["config.txt"], ["config_file"], ["application/octet-stream"])
-    return response.headers.get("X-Response-Code")
+    formdata = [dict(data=data, filename="config.txt", formname="config_file", mimetype="application/octet-stream")]
+    response = agent.form_data_file(target, formdata)
+    return response["headers"].get("X-Response-Code")
 
-def download_rawcfg(agent):
+def download(agent):
     """
     Method to download the configuration data
 
@@ -95,7 +152,7 @@ def download_rawcfg(agent):
 
         agent = rpc.Agent("https", "my-pdu.example.com", "admin", "raritan")
         # download
-        raw_cfg = rawcfg.download_rawcfg(agent)
+        raw_cfg = rawcfg.download(agent)
         print(raw_cfg)
     """
     target = "cgi-bin/raw_config_download.cgi"

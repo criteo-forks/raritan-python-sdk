@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -17,11 +17,11 @@ import raritan.rpc.idl
 
 # interface
 class DateTime(Interface):
-    idlType = "datetime.DateTime:3.0.2"
+    idlType = "datetime.DateTime:3.0.3"
 
     # structure
     class ZoneInfo(Structure):
-        idlType = "datetime.DateTime_3_0_2.ZoneInfo:1.0.0"
+        idlType = "datetime.DateTime_3_0_3.ZoneInfo:1.0.0"
         elements = ["id", "name", "hasDSTInfo"]
 
         def __init__(self, id, name, hasDSTInfo):
@@ -51,7 +51,7 @@ class DateTime(Interface):
 
     # structure
     class ZoneCfg(Structure):
-        idlType = "datetime.DateTime_3_0_2.ZoneCfg:1.0.0"
+        idlType = "datetime.DateTime_3_0_3.ZoneCfg:1.0.0"
         elements = ["id", "name", "enableAutoDST"]
 
         def __init__(self, id, name, enableAutoDST):
@@ -81,7 +81,7 @@ class DateTime(Interface):
 
     # enumeration
     class Protocol(Enumeration):
-        idlType = "datetime.DateTime_3_0_2.Protocol:1.0.0"
+        idlType = "datetime.DateTime_3_0_3.Protocol:1.0.0"
         values = ["STATIC", "NTP"]
 
     Protocol.STATIC = Protocol(0)
@@ -89,7 +89,7 @@ class DateTime(Interface):
 
     # structure
     class NtpCfg(Structure):
-        idlType = "datetime.DateTime_3_0_2.NtpCfg:1.0.0"
+        idlType = "datetime.DateTime_3_0_3.NtpCfg:1.0.0"
         elements = ["server1", "server2"]
 
         def __init__(self, server1, server2):
@@ -115,7 +115,7 @@ class DateTime(Interface):
 
     # structure
     class Cfg(Structure):
-        idlType = "datetime.DateTime_3_0_2.Cfg:1.0.0"
+        idlType = "datetime.DateTime_3_0_3.Cfg:1.0.0"
         elements = ["zoneCfg", "protocol", "deviceTime", "ntpCfg"]
 
         def __init__(self, zoneCfg, protocol, deviceTime, ntpCfg):
@@ -149,7 +149,7 @@ class DateTime(Interface):
 
     # value object
     class ConfigurationChangedEvent(raritan.rpc.idl.Event):
-        idlType = "datetime.DateTime_3_0_2.ConfigurationChangedEvent:1.0.0"
+        idlType = "datetime.DateTime_3_0_3.ConfigurationChangedEvent:1.0.0"
 
         def __init__(self, source):
             super(raritan.rpc.datetime.DateTime.ConfigurationChangedEvent, self).__init__(source)
@@ -169,6 +169,39 @@ class DateTime(Interface):
         def listElements(self):
             elements = []
             elements = elements + super(raritan.rpc.datetime.DateTime.ConfigurationChangedEvent, self).listElements()
+            return elements
+
+    # value object
+    class ClockChangedEvent(raritan.rpc.idl.Event):
+        idlType = "datetime.DateTime_3_0_3.ClockChangedEvent:1.0.0"
+
+        def __init__(self, oldTime, newTime, source):
+            super(raritan.rpc.datetime.DateTime.ClockChangedEvent, self).__init__(source)
+            typecheck.is_time(oldTime, AssertionError)
+            typecheck.is_time(newTime, AssertionError)
+
+            self.oldTime = oldTime
+            self.newTime = newTime
+
+        def encode(self):
+            json = super(raritan.rpc.datetime.DateTime.ClockChangedEvent, self).encode()
+            json['oldTime'] = raritan.rpc.Time.encode(self.oldTime)
+            json['newTime'] = raritan.rpc.Time.encode(self.newTime)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                oldTime = raritan.rpc.Time.decode(json['oldTime']),
+                newTime = raritan.rpc.Time.decode(json['newTime']),
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["oldTime", "newTime"]
+            elements = elements + super(raritan.rpc.datetime.DateTime.ClockChangedEvent, self).listElements()
             return elements
 
     class _getZoneInfos(Interface.Method):

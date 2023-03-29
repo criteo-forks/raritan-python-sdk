@@ -5,6 +5,24 @@
 import raritan.rpc
 import raritan.rpc.bulkrpc
 
+def perform_bulk(agent, requests, raise_subreq_failure = False):
+    """Performs `requests` as a bulk request via `BulkRequestHelper.perform_bulk()`.
+
+    Each `requests` element is a pair: (<method>, <arguments>).
+    <method> is a callable, typically a bound method of some JSON-RPC proxy.
+    <arguments> is the list of arguments that will be passed into <method> on
+    the remote end.
+
+    Example:
+        peripheral_slots = pdu.getPeripheralDeviceManager().getDeviceSlots()
+        settings_objs = perform_bulk(agent, [(slot.getSettings, []) for slot in peripheral_slots])
+    """
+    bulk_helper = BulkRequestHelper(agent)
+    for method, args in requests:
+        bulk_helper.add_request(method, *args)
+
+    return bulk_helper.perform_bulk(raise_subreq_failure)
+
 class BulkRequestHelper:
     """Helper class to collect multiple JSON-RPC requests and execute them as a
     single bulk request.

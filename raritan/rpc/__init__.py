@@ -31,3 +31,4 @@ class DecodeException(Exception):
     pass
 
 from .BulkRequestHelper import BulkRequestHelper
+from .BulkRequestHelper import perform_bulk

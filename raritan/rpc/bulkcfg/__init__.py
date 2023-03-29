@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -417,7 +417,14 @@ class BulkConfiguration(Interface):
         self.setSettings = BulkConfiguration._setSettings(self)
 
 # from raritan/rpc/bulkcfg/__extend__.py
-def upload(agent, data, full = False, backup = False):
+try:
+    # Python 3
+    from urllib.parse import quote
+except ImportError:
+    # Python 2
+    from urllib2 import quote
+
+def upload(agent, data, backup = False, password = None, skip_check = "", link_ids = []):
     """
     Method to upload bulk config files.
     Check the according response header X-Response-Code for succesfull configuration.
@@ -426,7 +433,10 @@ def upload(agent, data, full = False, backup = False):
 
     :param agent: An agent instance for the device where the config should be uploaded
     :param data: The binary data of the bulk config file
-    :param backup: (optional) Is the file a settings backup?
+    :param backup: (optional) Is the file a backup?
+    :param password: (optional) The password for the config file
+    :param skip_check: (optional) Skip check for model/firmware version. Values: "model", "firmware_version", "firmware_version,model"
+    :param link_ids: (optional) A List of linked device ids e.g. link_ids=[1,2]
     :return: return the response code from internal processing
 
     **Example**
@@ -445,22 +455,35 @@ def upload(agent, data, full = False, backup = False):
         print(code)
     """
     target = "cgi-bin/bulk_config_restore.cgi"
-    if full:
-        target += "?mode=full"
-    elif backup:
-        target += "?mode=backup"
-    response = agent.form_data_file(target, [data], ["bulk_config.txt"], ["bulk_config_file"], ["application/octet-stream"])
-    return response.headers.get("X-Response-Code")
+    params = []
+    if password:
+        params.append("user_password=" + quote(password))
+    if skip_check:
+        params.append("skip_checks=" + skip_check)
+    if link_ids:
+        params.append("link_ids=" + ",".join(str(x) for x in link_ids))
+    else:
+        params.append("link_ids=1") #default to 1 as master
+    if backup:
+        params.append("mode=backup")
+    if params:
+        target += "?%s" % "&".join(params)
+    formdata = [dict(data=data, filename="bulk_config.txt", formname="bulk_config_file", mimetype="application/octet-stream")]
+    response = agent.form_data_file(target, formdata)
+    return int(response["headers"].get("X-Response-Code"))
 
-def download_bulkcfg(agent, full = False, backup = False):
+def download(agent, backup = False, password = None, clear_text = False, link_ids = [], filter_profile = ""):
     """
     Method to download the bulk config file
 
     **parameters**
 
     :param agent: An agent instance from the device where the bulk config should be downloaded
-    :param full: (optional) The full configuration?
-    :param backup: (optional) Only the configuration backup?
+    :param backup: (optional) Download a backup?
+    :param password: (optional) A password for encrypting the config file
+    :param clear_text: (optional) Get config as cleartext. Overrides password parameter
+    :param link_ids: (optional) A List of linked device ids e.g. link_ids=[1,2]
+    :param filter_profile: (optional) The profile to download as name e.g. filter_profile="http_settings"
     :return: returns the bulk configuration data
 
     **Example**
@@ -471,12 +494,23 @@ def download_bulkcfg(agent, full = False, backup = False):
 
         agent = rpc.Agent("https", "my-pdu.example.com", "admin", "raritan")
         # download
-        cfg = bulkcfg.download_bulkcfg(agent)
+        cfg = bulkcfg.download(agent)
         print(cfg)
     """
     target = "cgi-bin/bulk_config_save.cgi"
-    if full:
-        target += "?mode=full"
-    elif backup:
-        target += "?mode=backup"
+    params = []
+    if password:
+        params.append("bulk_config_password=" + quote(password))
+    if clear_text:
+        params.append("config_format=cleartext")
+    if link_ids:
+        params.append("link_ids=" + ",".join(str(x) for x in link_ids))
+    else:
+        params.append("link_ids=1") #default to 1 as master
+    if filter_profile:
+        params.append("filter_profile=" + quote(str(filter_profile)))
+    if backup:
+        params.append("mode=backup")
+    if params:
+        target += "?%s" % "&".join(params)
     return agent.get(target)

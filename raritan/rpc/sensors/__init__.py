@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -17,7 +17,7 @@ import raritan.rpc.sensors
 
 # interface
 class Sensor(Interface):
-    idlType = "sensors.Sensor:4.0.3"
+    idlType = "sensors.Sensor:4.0.5"
 
     ERR_NOT_SUPPORTED = 1
 
@@ -29,7 +29,7 @@ class Sensor(Interface):
 
     # enumeration
     class OnOffState(Enumeration):
-        idlType = "sensors.Sensor_4_0_3.OnOffState:1.0.0"
+        idlType = "sensors.Sensor_4_0_5.OnOffState:1.0.0"
         values = ["OFF", "ON"]
 
     OnOffState.OFF = OnOffState(0)
@@ -37,7 +37,7 @@ class Sensor(Interface):
 
     # enumeration
     class OpenClosedState(Enumeration):
-        idlType = "sensors.Sensor_4_0_3.OpenClosedState:1.0.0"
+        idlType = "sensors.Sensor_4_0_5.OpenClosedState:1.0.0"
         values = ["OPEN", "CLOSED"]
 
     OpenClosedState.OPEN = OpenClosedState(0)
@@ -45,7 +45,7 @@ class Sensor(Interface):
 
     # enumeration
     class NormalAlarmedState(Enumeration):
-        idlType = "sensors.Sensor_4_0_3.NormalAlarmedState:1.0.0"
+        idlType = "sensors.Sensor_4_0_5.NormalAlarmedState:1.0.0"
         values = ["NORMAL", "ALARMED"]
 
     NormalAlarmedState.NORMAL = NormalAlarmedState(0)
@@ -53,7 +53,7 @@ class Sensor(Interface):
 
     # enumeration
     class OkFaultState(Enumeration):
-        idlType = "sensors.Sensor_4_0_3.OkFaultState:1.0.0"
+        idlType = "sensors.Sensor_4_0_5.OkFaultState:1.0.0"
         values = ["OK", "FAULT"]
 
     OkFaultState.OK = OkFaultState(0)
@@ -151,6 +151,14 @@ class Sensor(Interface):
 
     CREST_FACTOR = 45
 
+    DISTANCE = 46
+
+    LENGTH = 47
+
+    UNBALANCE_VOLTAGE = 48
+
+    PARTICLE_DENSITY = 49
+
     NONE = 0
 
     VOLT = 1
@@ -198,6 +206,8 @@ class Sensor(Interface):
     LITERS_PER_HOUR = 22
 
     CANDELA = 23
+
+    METER_PER_SQUARE_SEC = 24
 
     METER_PER_SQARE_SEC = 24
 
@@ -253,9 +263,11 @@ class Sensor(Interface):
 
     G_PER_CUBIC_METER = 50
 
+    UG_PER_CUBIC_METER = 51
+
     # structure
     class TypeSpec(Structure):
-        idlType = "sensors.Sensor_4_0_3.TypeSpec:1.0.0"
+        idlType = "sensors.Sensor_4_0_5.TypeSpec:1.0.0"
         elements = ["readingtype", "type", "unit"]
 
         def __init__(self, readingtype, type, unit):
@@ -285,7 +297,7 @@ class Sensor(Interface):
 
     # value object
     class TypeSpecChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.Sensor_4_0_3.TypeSpecChangedEvent:1.0.0"
+        idlType = "sensors.Sensor_4_0_5.TypeSpecChangedEvent:1.0.0"
 
         def __init__(self, oldTypeSpec, newTypeSpec, source):
             super(raritan.rpc.sensors.Sensor.TypeSpecChangedEvent, self).__init__(source)
@@ -330,6 +342,20 @@ class Sensor(Interface):
             typecheck.is_struct(_ret_, raritan.rpc.sensors.Sensor.TypeSpec, DecodeException)
             return _ret_
 
+    class _isTypeChangeAllowed(Interface.Method):
+        name = 'isTypeChangeAllowed'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = rsp['_ret_']
+            typecheck.is_bool(_ret_, DecodeException)
+            return _ret_
+
     class _setType(Interface.Method):
         name = 'setType'
 
@@ -350,6 +376,7 @@ class Sensor(Interface):
     def __init__(self, target, agent):
         super(Sensor, self).__init__(target, agent)
         self.getTypeSpec = Sensor._getTypeSpec(self)
+        self.isTypeChangeAllowed = Sensor._isTypeChangeAllowed(self)
         self.setType = Sensor._setType(self)
 
 #
@@ -367,7 +394,7 @@ import raritan.rpc.sensors
 
 # interface
 class NumericSensor(Sensor):
-    idlType = "sensors.NumericSensor:4.0.3"
+    idlType = "sensors.NumericSensor:4.0.6"
 
     THRESHOLD_OUT_OF_RANGE = 1
 
@@ -377,7 +404,7 @@ class NumericSensor(Sensor):
 
     # structure
     class Range(Structure):
-        idlType = "sensors.NumericSensor_4_0_3.Range:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.Range:1.0.0"
         elements = ["lower", "upper"]
 
         def __init__(self, lower, upper):
@@ -403,7 +430,7 @@ class NumericSensor(Sensor):
 
     # structure
     class ThresholdCapabilities(Structure):
-        idlType = "sensors.NumericSensor_4_0_3.ThresholdCapabilities:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.ThresholdCapabilities:1.0.0"
         elements = ["hasUpperCritical", "hasUpperWarning", "hasLowerWarning", "hasLowerCritical"]
 
         def __init__(self, hasUpperCritical, hasUpperWarning, hasLowerWarning, hasLowerCritical):
@@ -437,7 +464,7 @@ class NumericSensor(Sensor):
 
     # structure
     class MetaData(Structure):
-        idlType = "sensors.NumericSensor_4_0_3.MetaData:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.MetaData:1.0.0"
         elements = ["type", "decdigits", "accuracy", "resolution", "tolerance", "noiseThreshold", "range", "thresholdCaps"]
 
         def __init__(self, type, decdigits, accuracy, resolution, tolerance, noiseThreshold, range, thresholdCaps):
@@ -487,7 +514,7 @@ class NumericSensor(Sensor):
 
     # structure
     class Thresholds(Structure):
-        idlType = "sensors.NumericSensor_4_0_3.Thresholds:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.Thresholds:1.0.0"
         elements = ["upperCriticalActive", "upperCritical", "upperWarningActive", "upperWarning", "lowerWarningActive", "lowerWarning", "lowerCriticalActive", "lowerCritical", "assertionTimeout", "deassertionHysteresis"]
 
         def __init__(self, upperCriticalActive, upperCritical, upperWarningActive, upperWarning, lowerWarningActive, lowerWarning, lowerCriticalActive, lowerCritical, assertionTimeout, deassertionHysteresis):
@@ -545,7 +572,7 @@ class NumericSensor(Sensor):
 
     # structure
     class Reading(Structure):
-        idlType = "sensors.NumericSensor_4_0_3.Reading:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.Reading:1.0.0"
         elements = ["timestamp", "available", "status", "valid", "value"]
 
         def __init__(self, timestamp, available, status, valid, value):
@@ -583,7 +610,7 @@ class NumericSensor(Sensor):
 
         # structure
         class Status(Structure):
-            idlType = "sensors.NumericSensor_4_0_3.Reading.Status:1.0.0"
+            idlType = "sensors.NumericSensor_4_0_6.Reading.Status:1.0.0"
             elements = ["aboveUpperCritical", "aboveUpperWarning", "belowLowerWarning", "belowLowerCritical"]
 
             def __init__(self, aboveUpperCritical, aboveUpperWarning, belowLowerWarning, belowLowerCritical):
@@ -615,9 +642,51 @@ class NumericSensor(Sensor):
                 json['belowLowerCritical'] = self.belowLowerCritical
                 return json
 
+    # structure
+    class MinMax(Structure):
+        idlType = "sensors.NumericSensor_4_0_6.MinMax:1.0.0"
+        elements = ["minReading", "minReadingTimestamp", "maxReading", "maxReadingTimestamp", "valid", "observedSince"]
+
+        def __init__(self, minReading, minReadingTimestamp, maxReading, maxReadingTimestamp, valid, observedSince):
+            typecheck.is_double(minReading, AssertionError)
+            typecheck.is_time(minReadingTimestamp, AssertionError)
+            typecheck.is_double(maxReading, AssertionError)
+            typecheck.is_time(maxReadingTimestamp, AssertionError)
+            typecheck.is_bool(valid, AssertionError)
+            typecheck.is_time(observedSince, AssertionError)
+
+            self.minReading = minReading
+            self.minReadingTimestamp = minReadingTimestamp
+            self.maxReading = maxReading
+            self.maxReadingTimestamp = maxReadingTimestamp
+            self.valid = valid
+            self.observedSince = observedSince
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                minReading = json['minReading'],
+                minReadingTimestamp = raritan.rpc.Time.decode(json['minReadingTimestamp']),
+                maxReading = json['maxReading'],
+                maxReadingTimestamp = raritan.rpc.Time.decode(json['maxReadingTimestamp']),
+                valid = json['valid'],
+                observedSince = raritan.rpc.Time.decode(json['observedSince']),
+            )
+            return obj
+
+        def encode(self):
+            json = {}
+            json['minReading'] = self.minReading
+            json['minReadingTimestamp'] = raritan.rpc.Time.encode(self.minReadingTimestamp)
+            json['maxReading'] = self.maxReading
+            json['maxReadingTimestamp'] = raritan.rpc.Time.encode(self.maxReadingTimestamp)
+            json['valid'] = self.valid
+            json['observedSince'] = raritan.rpc.Time.encode(self.observedSince)
+            return json
+
     # value object
     class ReadingChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.NumericSensor_4_0_3.ReadingChangedEvent:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.ReadingChangedEvent:1.0.0"
 
         def __init__(self, newReading, source):
             super(raritan.rpc.sensors.NumericSensor.ReadingChangedEvent, self).__init__(source)
@@ -646,7 +715,7 @@ class NumericSensor(Sensor):
 
     # value object
     class StateChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.NumericSensor_4_0_3.StateChangedEvent:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.StateChangedEvent:1.0.0"
 
         def __init__(self, oldReading, newReading, source):
             super(raritan.rpc.sensors.NumericSensor.StateChangedEvent, self).__init__(source)
@@ -679,7 +748,7 @@ class NumericSensor(Sensor):
 
     # value object
     class MetaDataChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.NumericSensor_4_0_3.MetaDataChangedEvent:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.MetaDataChangedEvent:1.0.0"
 
         def __init__(self, oldMetaData, newMetaData, source):
             super(raritan.rpc.sensors.NumericSensor.MetaDataChangedEvent, self).__init__(source)
@@ -711,8 +780,44 @@ class NumericSensor(Sensor):
             return elements
 
     # value object
+    class DefaultThresholdsChangedEvent(raritan.rpc.event.UserEvent):
+        idlType = "sensors.NumericSensor_4_0_6.DefaultThresholdsChangedEvent:1.0.0"
+
+        def __init__(self, oldDefaultThresholds, newDefaultThresholds, actUserName, actIpAddr, source):
+            super(raritan.rpc.sensors.NumericSensor.DefaultThresholdsChangedEvent, self).__init__(actUserName, actIpAddr, source)
+            typecheck.is_struct(oldDefaultThresholds, raritan.rpc.sensors.NumericSensor.Thresholds, AssertionError)
+            typecheck.is_struct(newDefaultThresholds, raritan.rpc.sensors.NumericSensor.Thresholds, AssertionError)
+
+            self.oldDefaultThresholds = oldDefaultThresholds
+            self.newDefaultThresholds = newDefaultThresholds
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.NumericSensor.DefaultThresholdsChangedEvent, self).encode()
+            json['oldDefaultThresholds'] = raritan.rpc.sensors.NumericSensor.Thresholds.encode(self.oldDefaultThresholds)
+            json['newDefaultThresholds'] = raritan.rpc.sensors.NumericSensor.Thresholds.encode(self.newDefaultThresholds)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                oldDefaultThresholds = raritan.rpc.sensors.NumericSensor.Thresholds.decode(json['oldDefaultThresholds'], agent),
+                newDefaultThresholds = raritan.rpc.sensors.NumericSensor.Thresholds.decode(json['newDefaultThresholds'], agent),
+                # for event.UserEvent
+                actUserName = json['actUserName'],
+                actIpAddr = json['actIpAddr'],
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["oldDefaultThresholds", "newDefaultThresholds"]
+            elements = elements + super(raritan.rpc.sensors.NumericSensor.DefaultThresholdsChangedEvent, self).listElements()
+            return elements
+
+    # value object
     class ThresholdsChangedEvent(raritan.rpc.event.UserEvent):
-        idlType = "sensors.NumericSensor_4_0_3.ThresholdsChangedEvent:1.0.0"
+        idlType = "sensors.NumericSensor_4_0_6.ThresholdsChangedEvent:1.0.0"
 
         def __init__(self, oldThresholds, newThresholds, actUserName, actIpAddr, source):
             super(raritan.rpc.sensors.NumericSensor.ThresholdsChangedEvent, self).__init__(actUserName, actIpAddr, source)
@@ -744,6 +849,71 @@ class NumericSensor(Sensor):
         def listElements(self):
             elements = ["oldThresholds", "newThresholds"]
             elements = elements + super(raritan.rpc.sensors.NumericSensor.ThresholdsChangedEvent, self).listElements()
+            return elements
+
+    # value object
+    class MinMaxChangedEvent(raritan.rpc.idl.Event):
+        idlType = "sensors.NumericSensor_4_0_6.MinMaxChangedEvent:1.0.0"
+
+        def __init__(self, newMinMax, source):
+            super(raritan.rpc.sensors.NumericSensor.MinMaxChangedEvent, self).__init__(source)
+            typecheck.is_struct(newMinMax, raritan.rpc.sensors.NumericSensor.MinMax, AssertionError)
+
+            self.newMinMax = newMinMax
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.NumericSensor.MinMaxChangedEvent, self).encode()
+            json['newMinMax'] = raritan.rpc.sensors.NumericSensor.MinMax.encode(self.newMinMax)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                newMinMax = raritan.rpc.sensors.NumericSensor.MinMax.decode(json['newMinMax'], agent),
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["newMinMax"]
+            elements = elements + super(raritan.rpc.sensors.NumericSensor.MinMaxChangedEvent, self).listElements()
+            return elements
+
+    # value object
+    class MinMaxResetEvent(raritan.rpc.event.UserEvent):
+        idlType = "sensors.NumericSensor_4_0_6.MinMaxResetEvent:1.0.0"
+
+        def __init__(self, oldMinMax, newMinMax, actUserName, actIpAddr, source):
+            super(raritan.rpc.sensors.NumericSensor.MinMaxResetEvent, self).__init__(actUserName, actIpAddr, source)
+            typecheck.is_struct(oldMinMax, raritan.rpc.sensors.NumericSensor.MinMax, AssertionError)
+            typecheck.is_struct(newMinMax, raritan.rpc.sensors.NumericSensor.MinMax, AssertionError)
+
+            self.oldMinMax = oldMinMax
+            self.newMinMax = newMinMax
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.NumericSensor.MinMaxResetEvent, self).encode()
+            json['oldMinMax'] = raritan.rpc.sensors.NumericSensor.MinMax.encode(self.oldMinMax)
+            json['newMinMax'] = raritan.rpc.sensors.NumericSensor.MinMax.encode(self.newMinMax)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                oldMinMax = raritan.rpc.sensors.NumericSensor.MinMax.decode(json['oldMinMax'], agent),
+                newMinMax = raritan.rpc.sensors.NumericSensor.MinMax.decode(json['newMinMax'], agent),
+                # for event.UserEvent
+                actUserName = json['actUserName'],
+                actIpAddr = json['actIpAddr'],
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["oldMinMax", "newMinMax"]
+            elements = elements + super(raritan.rpc.sensors.NumericSensor.MinMaxResetEvent, self).listElements()
             return elements
 
     class _getMetaData(Interface.Method):
@@ -817,6 +987,32 @@ class NumericSensor(Sensor):
             _ret_ = raritan.rpc.sensors.NumericSensor.Reading.decode(rsp['_ret_'], agent)
             typecheck.is_struct(_ret_, raritan.rpc.sensors.NumericSensor.Reading, DecodeException)
             return _ret_
+
+    class _getMinMax(Interface.Method):
+        name = 'getMinMax'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = raritan.rpc.sensors.NumericSensor.MinMax.decode(rsp['_ret_'], agent)
+            typecheck.is_struct(_ret_, raritan.rpc.sensors.NumericSensor.MinMax, DecodeException)
+            return _ret_
+
+    class _resetMinMax(Interface.Method):
+        name = 'resetMinMax'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            return None
     def __init__(self, target, agent):
         super(NumericSensor, self).__init__(target, agent)
         self.getMetaData = NumericSensor._getMetaData(self)
@@ -824,6 +1020,280 @@ class NumericSensor(Sensor):
         self.getThresholds = NumericSensor._getThresholds(self)
         self.setThresholds = NumericSensor._setThresholds(self)
         self.getReading = NumericSensor._getReading(self)
+        self.getMinMax = NumericSensor._getMinMax(self)
+        self.resetMinMax = NumericSensor._resetMinMax(self)
+
+#
+# Section generated by IdlC from "AccumulatingNumericSensor.idl"
+#
+
+import raritan.rpc
+from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
+import raritan.rpc.event
+
+import raritan.rpc.sensors
+
+
+# interface
+class AccumulatingNumericSensor(NumericSensor):
+    idlType = "sensors.AccumulatingNumericSensor:2.0.6"
+
+    # value object
+    class ResetEvent(raritan.rpc.event.UserEvent):
+        idlType = "sensors.AccumulatingNumericSensor_2_0_6.ResetEvent:1.0.0"
+
+        def __init__(self, oldReading, newReading, actUserName, actIpAddr, source):
+            super(raritan.rpc.sensors.AccumulatingNumericSensor.ResetEvent, self).__init__(actUserName, actIpAddr, source)
+            typecheck.is_struct(oldReading, raritan.rpc.sensors.NumericSensor.Reading, AssertionError)
+            typecheck.is_struct(newReading, raritan.rpc.sensors.NumericSensor.Reading, AssertionError)
+
+            self.oldReading = oldReading
+            self.newReading = newReading
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.AccumulatingNumericSensor.ResetEvent, self).encode()
+            json['oldReading'] = raritan.rpc.sensors.NumericSensor.Reading.encode(self.oldReading)
+            json['newReading'] = raritan.rpc.sensors.NumericSensor.Reading.encode(self.newReading)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                oldReading = raritan.rpc.sensors.NumericSensor.Reading.decode(json['oldReading'], agent),
+                newReading = raritan.rpc.sensors.NumericSensor.Reading.decode(json['newReading'], agent),
+                # for event.UserEvent
+                actUserName = json['actUserName'],
+                actIpAddr = json['actIpAddr'],
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["oldReading", "newReading"]
+            elements = elements + super(raritan.rpc.sensors.AccumulatingNumericSensor.ResetEvent, self).listElements()
+            return elements
+
+    class _resetValue(Interface.Method):
+        name = 'resetValue'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            return None
+    def __init__(self, target, agent):
+        super(AccumulatingNumericSensor, self).__init__(target, agent)
+        self.resetValue = AccumulatingNumericSensor._resetValue(self)
+
+#
+# Section generated by IdlC from "AlertedSensorManager.idl"
+#
+
+import raritan.rpc
+from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
+import raritan.rpc.idl
+
+import raritan.rpc.sensors
+
+
+# interface
+class AlertedSensorManager(Interface):
+    idlType = "sensors.AlertedSensorManager:1.0.3"
+
+    # enumeration
+    class AlertState(Enumeration):
+        idlType = "sensors.AlertedSensorManager_1_0_3.AlertState:1.0.0"
+        values = ["UNAVAILABLE", "NORMAL", "CRITICAL", "WARNED"]
+
+    AlertState.UNAVAILABLE = AlertState(0)
+    AlertState.NORMAL = AlertState(1)
+    AlertState.CRITICAL = AlertState(2)
+    AlertState.WARNED = AlertState(3)
+
+    # structure
+    class SensorCounts(Structure):
+        idlType = "sensors.AlertedSensorManager_1_0_3.SensorCounts:1.0.0"
+        elements = ["total", "unavailable", "critical", "warned"]
+
+        def __init__(self, total, unavailable, critical, warned):
+            typecheck.is_int(total, AssertionError)
+            typecheck.is_int(unavailable, AssertionError)
+            typecheck.is_int(critical, AssertionError)
+            typecheck.is_int(warned, AssertionError)
+
+            self.total = total
+            self.unavailable = unavailable
+            self.critical = critical
+            self.warned = warned
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                total = json['total'],
+                unavailable = json['unavailable'],
+                critical = json['critical'],
+                warned = json['warned'],
+            )
+            return obj
+
+        def encode(self):
+            json = {}
+            json['total'] = self.total
+            json['unavailable'] = self.unavailable
+            json['critical'] = self.critical
+            json['warned'] = self.warned
+            return json
+
+    # structure
+    class SensorData(Structure):
+        idlType = "sensors.AlertedSensorManager_1_0_3.SensorData:1.0.0"
+        elements = ["sensor", "parent", "alertState"]
+
+        def __init__(self, sensor, parent, alertState):
+            typecheck.is_interface(sensor, raritan.rpc.sensors.Sensor, AssertionError)
+            typecheck.is_remote_obj(parent, AssertionError)
+            typecheck.is_enum(alertState, raritan.rpc.sensors.AlertedSensorManager.AlertState, AssertionError)
+
+            self.sensor = sensor
+            self.parent = parent
+            self.alertState = alertState
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                sensor = Interface.decode(json['sensor'], agent),
+                parent = Interface.decode(json['parent'], agent),
+                alertState = raritan.rpc.sensors.AlertedSensorManager.AlertState.decode(json['alertState']),
+            )
+            return obj
+
+        def encode(self):
+            json = {}
+            json['sensor'] = Interface.encode(self.sensor)
+            json['parent'] = Interface.encode(self.parent)
+            json['alertState'] = raritan.rpc.sensors.AlertedSensorManager.AlertState.encode(self.alertState)
+            return json
+
+    # value object
+    class MonitoredSensorsChangedEvent(raritan.rpc.idl.Event):
+        idlType = "sensors.AlertedSensorManager_1_0_3.MonitoredSensorsChangedEvent:1.0.0"
+
+        def __init__(self, counts, source):
+            super(raritan.rpc.sensors.AlertedSensorManager.MonitoredSensorsChangedEvent, self).__init__(source)
+            typecheck.is_struct(counts, raritan.rpc.sensors.AlertedSensorManager.SensorCounts, AssertionError)
+
+            self.counts = counts
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.AlertedSensorManager.MonitoredSensorsChangedEvent, self).encode()
+            json['counts'] = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.encode(self.counts)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                counts = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.decode(json['counts'], agent),
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["counts"]
+            elements = elements + super(raritan.rpc.sensors.AlertedSensorManager.MonitoredSensorsChangedEvent, self).listElements()
+            return elements
+
+    # value object
+    class AlertedSensorsChangedEvent(raritan.rpc.idl.Event):
+        idlType = "sensors.AlertedSensorManager_1_0_3.AlertedSensorsChangedEvent:1.0.0"
+
+        def __init__(self, counts, changedSensors, removedSensors, source):
+            super(raritan.rpc.sensors.AlertedSensorManager.AlertedSensorsChangedEvent, self).__init__(source)
+            typecheck.is_struct(counts, raritan.rpc.sensors.AlertedSensorManager.SensorCounts, AssertionError)
+            for x0 in changedSensors:
+                typecheck.is_struct(x0, raritan.rpc.sensors.AlertedSensorManager.SensorData, AssertionError)
+            for x0 in removedSensors:
+                typecheck.is_interface(x0, raritan.rpc.sensors.Sensor, AssertionError)
+
+            self.counts = counts
+            self.changedSensors = changedSensors
+            self.removedSensors = removedSensors
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.AlertedSensorManager.AlertedSensorsChangedEvent, self).encode()
+            json['counts'] = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.encode(self.counts)
+            json['changedSensors'] = [raritan.rpc.sensors.AlertedSensorManager.SensorData.encode(x0) for x0 in self.changedSensors]
+            json['removedSensors'] = [Interface.encode(x0) for x0 in self.removedSensors]
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                counts = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.decode(json['counts'], agent),
+                changedSensors = [raritan.rpc.sensors.AlertedSensorManager.SensorData.decode(x0, agent) for x0 in json['changedSensors']],
+                removedSensors = [Interface.decode(x0, agent) for x0 in json['removedSensors']],
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["counts", "changedSensors", "removedSensors"]
+            elements = elements + super(raritan.rpc.sensors.AlertedSensorManager.AlertedSensorsChangedEvent, self).listElements()
+            return elements
+
+    class _getSensorCounts(Interface.Method):
+        name = 'getSensorCounts'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.decode(rsp['_ret_'], agent)
+            typecheck.is_struct(_ret_, raritan.rpc.sensors.AlertedSensorManager.SensorCounts, DecodeException)
+            return _ret_
+
+    class _getAllSensors(Interface.Method):
+        name = 'getAllSensors'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = [raritan.rpc.sensors.AlertedSensorManager.SensorData.decode(x0, agent) for x0 in rsp['_ret_']]
+            for x0 in _ret_:
+                typecheck.is_struct(x0, raritan.rpc.sensors.AlertedSensorManager.SensorData, DecodeException)
+            return _ret_
+
+    class _getAlertedSensors(Interface.Method):
+        name = 'getAlertedSensors'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = [raritan.rpc.sensors.AlertedSensorManager.SensorData.decode(x0, agent) for x0 in rsp['_ret_']]
+            for x0 in _ret_:
+                typecheck.is_struct(x0, raritan.rpc.sensors.AlertedSensorManager.SensorData, DecodeException)
+            return _ret_
+    def __init__(self, target, agent):
+        super(AlertedSensorManager, self).__init__(target, agent)
+        self.getSensorCounts = AlertedSensorManager._getSensorCounts(self)
+        self.getAllSensors = AlertedSensorManager._getAllSensors(self)
+        self.getAlertedSensors = AlertedSensorManager._getAlertedSensors(self)
 
 #
 # Section generated by IdlC from "StateSensor.idl"
@@ -838,11 +1308,11 @@ import raritan.rpc.sensors
 
 # interface
 class StateSensor(Sensor):
-    idlType = "sensors.StateSensor:4.0.3"
+    idlType = "sensors.StateSensor:4.0.5"
 
     # structure
     class State(Structure):
-        idlType = "sensors.StateSensor_4_0_3.State:1.0.0"
+        idlType = "sensors.StateSensor_4_0_5.State:1.0.0"
         elements = ["timestamp", "available", "value"]
 
         def __init__(self, timestamp, available, value):
@@ -872,7 +1342,7 @@ class StateSensor(Sensor):
 
     # value object
     class StateChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.StateSensor_4_0_3.StateChangedEvent:1.0.0"
+        idlType = "sensors.StateSensor_4_0_5.StateChangedEvent:1.0.0"
 
         def __init__(self, oldState, newState, source):
             super(raritan.rpc.sensors.StateSensor.StateChangedEvent, self).__init__(source)
@@ -928,6 +1398,8 @@ import raritan.rpc
 from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
 import raritan.rpc.event
 
+import raritan.rpc.idl
+
 import raritan.rpc.peripheral
 
 import raritan.rpc.sensors
@@ -935,53 +1407,83 @@ import raritan.rpc.sensors
 
 # interface
 class Logger(Interface):
-    idlType = "sensors.Logger:2.1.6"
+    idlType = "sensors.Logger:3.0.1"
+
+    # structure
+    class Info(Structure):
+        idlType = "sensors.Logger_3_0_1.Info:1.0.0"
+        elements = ["samplePeriod", "maxTotalRecords", "effectiveCapacity", "oldestRecId", "newestRecId"]
+
+        def __init__(self, samplePeriod, maxTotalRecords, effectiveCapacity, oldestRecId, newestRecId):
+            typecheck.is_int(samplePeriod, AssertionError)
+            typecheck.is_int(maxTotalRecords, AssertionError)
+            typecheck.is_int(effectiveCapacity, AssertionError)
+            typecheck.is_int(oldestRecId, AssertionError)
+            typecheck.is_int(newestRecId, AssertionError)
+
+            self.samplePeriod = samplePeriod
+            self.maxTotalRecords = maxTotalRecords
+            self.effectiveCapacity = effectiveCapacity
+            self.oldestRecId = oldestRecId
+            self.newestRecId = newestRecId
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                samplePeriod = json['samplePeriod'],
+                maxTotalRecords = json['maxTotalRecords'],
+                effectiveCapacity = json['effectiveCapacity'],
+                oldestRecId = json['oldestRecId'],
+                newestRecId = json['newestRecId'],
+            )
+            return obj
+
+        def encode(self):
+            json = {}
+            json['samplePeriod'] = self.samplePeriod
+            json['maxTotalRecords'] = self.maxTotalRecords
+            json['effectiveCapacity'] = self.effectiveCapacity
+            json['oldestRecId'] = self.oldestRecId
+            json['newestRecId'] = self.newestRecId
+            return json
 
     # structure
     class Settings(Structure):
-        idlType = "sensors.Logger_2_1_6.Settings:1.0.0"
-        elements = ["isEnabled", "samplePeriod", "samplesPerRecord", "oldestRecId", "newestRecId", "logCapacity"]
+        idlType = "sensors.Logger_3_0_1.Settings:1.0.0"
+        elements = ["isEnabled", "samplesPerRecord", "logCapacity", "backupEnabled"]
 
-        def __init__(self, isEnabled, samplePeriod, samplesPerRecord, oldestRecId, newestRecId, logCapacity):
+        def __init__(self, isEnabled, samplesPerRecord, logCapacity, backupEnabled):
             typecheck.is_bool(isEnabled, AssertionError)
-            typecheck.is_int(samplePeriod, AssertionError)
             typecheck.is_int(samplesPerRecord, AssertionError)
-            typecheck.is_int(oldestRecId, AssertionError)
-            typecheck.is_int(newestRecId, AssertionError)
             typecheck.is_int(logCapacity, AssertionError)
+            typecheck.is_bool(backupEnabled, AssertionError)
 
             self.isEnabled = isEnabled
-            self.samplePeriod = samplePeriod
             self.samplesPerRecord = samplesPerRecord
-            self.oldestRecId = oldestRecId
-            self.newestRecId = newestRecId
             self.logCapacity = logCapacity
+            self.backupEnabled = backupEnabled
 
         @classmethod
         def decode(cls, json, agent):
             obj = cls(
                 isEnabled = json['isEnabled'],
-                samplePeriod = json['samplePeriod'],
                 samplesPerRecord = json['samplesPerRecord'],
-                oldestRecId = json['oldestRecId'],
-                newestRecId = json['newestRecId'],
                 logCapacity = json['logCapacity'],
+                backupEnabled = json['backupEnabled'],
             )
             return obj
 
         def encode(self):
             json = {}
             json['isEnabled'] = self.isEnabled
-            json['samplePeriod'] = self.samplePeriod
             json['samplesPerRecord'] = self.samplesPerRecord
-            json['oldestRecId'] = self.oldestRecId
-            json['newestRecId'] = self.newestRecId
             json['logCapacity'] = self.logCapacity
+            json['backupEnabled'] = self.backupEnabled
             return json
 
     # structure
     class SensorSet(Structure):
-        idlType = "sensors.Logger_2_1_6.SensorSet:1.0.0"
+        idlType = "sensors.Logger_3_0_1.SensorSet:1.0.0"
         elements = ["sensors", "slots"]
 
         def __init__(self, sensors, slots):
@@ -1008,8 +1510,41 @@ class Logger(Interface):
             return json
 
     # value object
+    class InfoChangedEvent(raritan.rpc.idl.Event):
+        idlType = "sensors.Logger_3_0_1.InfoChangedEvent:1.0.0"
+
+        def __init__(self, oldInfo, newInfo, source):
+            super(raritan.rpc.sensors.Logger.InfoChangedEvent, self).__init__(source)
+            typecheck.is_struct(oldInfo, raritan.rpc.sensors.Logger.Info, AssertionError)
+            typecheck.is_struct(newInfo, raritan.rpc.sensors.Logger.Info, AssertionError)
+
+            self.oldInfo = oldInfo
+            self.newInfo = newInfo
+
+        def encode(self):
+            json = super(raritan.rpc.sensors.Logger.InfoChangedEvent, self).encode()
+            json['oldInfo'] = raritan.rpc.sensors.Logger.Info.encode(self.oldInfo)
+            json['newInfo'] = raritan.rpc.sensors.Logger.Info.encode(self.newInfo)
+            return json
+
+        @classmethod
+        def decode(cls, json, agent):
+            obj = cls(
+                oldInfo = raritan.rpc.sensors.Logger.Info.decode(json['oldInfo'], agent),
+                newInfo = raritan.rpc.sensors.Logger.Info.decode(json['newInfo'], agent),
+                # for idl.Event
+                source = Interface.decode(json['source'], agent),
+            )
+            return obj
+
+        def listElements(self):
+            elements = ["oldInfo", "newInfo"]
+            elements = elements + super(raritan.rpc.sensors.Logger.InfoChangedEvent, self).listElements()
+            return elements
+
+    # value object
     class SettingsChangedEvent(raritan.rpc.event.UserEvent):
-        idlType = "sensors.Logger_2_1_6.SettingsChangedEvent:1.0.0"
+        idlType = "sensors.Logger_3_0_1.SettingsChangedEvent:1.0.0"
 
         def __init__(self, oldSettings, newSettings, actUserName, actIpAddr, source):
             super(raritan.rpc.sensors.Logger.SettingsChangedEvent, self).__init__(actUserName, actIpAddr, source)
@@ -1045,7 +1580,7 @@ class Logger(Interface):
 
     # value object
     class LoggedSensorsChangedEvent(raritan.rpc.event.UserEvent):
-        idlType = "sensors.Logger_2_1_6.LoggedSensorsChangedEvent:1.0.0"
+        idlType = "sensors.Logger_3_0_1.LoggedSensorsChangedEvent:1.0.0"
 
         def __init__(self, oldSensors, newSensors, actUserName, actIpAddr, source):
             super(raritan.rpc.sensors.Logger.LoggedSensorsChangedEvent, self).__init__(actUserName, actIpAddr, source)
@@ -1079,6 +1614,20 @@ class Logger(Interface):
             elements = elements + super(raritan.rpc.sensors.Logger.LoggedSensorsChangedEvent, self).listElements()
             return elements
 
+    class _getInfo(Interface.Method):
+        name = 'getInfo'
+
+        @staticmethod
+        def encode():
+            args = {}
+            return args
+
+        @staticmethod
+        def decode(rsp, agent):
+            _ret_ = raritan.rpc.sensors.Logger.Info.decode(rsp['_ret_'], agent)
+            typecheck.is_struct(_ret_, raritan.rpc.sensors.Logger.Info, DecodeException)
+            return _ret_
+
     class _getSettings(Interface.Method):
         name = 'getSettings'
 
@@ -1097,12 +1646,10 @@ class Logger(Interface):
         name = 'setSettings'
 
         @staticmethod
-        def encode(isEnabled, samplesPerRecord):
-            typecheck.is_bool(isEnabled, AssertionError)
-            typecheck.is_int(samplesPerRecord, AssertionError)
+        def encode(settings):
+            typecheck.is_struct(settings, raritan.rpc.sensors.Logger.Settings, AssertionError)
             args = {}
-            args['isEnabled'] = isEnabled
-            args['samplesPerRecord'] = samplesPerRecord
+            args['settings'] = raritan.rpc.sensors.Logger.Settings.encode(settings)
             return args
 
         @staticmethod
@@ -1194,7 +1741,7 @@ class Logger(Interface):
 
     # structure
     class Record(Structure):
-        idlType = "sensors.Logger_2_1_6.Record:1.0.0"
+        idlType = "sensors.Logger_3_0_1.Record:1.0.0"
         elements = ["available", "takenValidSamples", "state", "minValue", "avgValue", "maxValue"]
 
         def __init__(self, available, takenValidSamples, state, minValue, avgValue, maxValue):
@@ -1282,7 +1829,7 @@ class Logger(Interface):
 
     # structure
     class TimedRecord(Structure):
-        idlType = "sensors.Logger_2_1_6.TimedRecord:1.0.0"
+        idlType = "sensors.Logger_3_0_1.TimedRecord:1.0.0"
         elements = ["timestamp", "record"]
 
         def __init__(self, timestamp, record):
@@ -1486,7 +2033,7 @@ class Logger(Interface):
 
     # structure
     class LogRow(Structure):
-        idlType = "sensors.Logger_2_1_6.LogRow:1.0.0"
+        idlType = "sensors.Logger_3_0_1.LogRow:1.0.0"
         elements = ["sensorSetTimestamp", "timestamp", "sensorRecords", "peripheralDeviceRecords"]
 
         def __init__(self, sensorSetTimestamp, timestamp, sensorRecords, peripheralDeviceRecords):
@@ -1539,6 +2086,7 @@ class Logger(Interface):
             return (_ret_, row)
     def __init__(self, target, agent):
         super(Logger, self).__init__(target, agent)
+        self.getInfo = Logger._getInfo(self)
         self.getSettings = Logger._getSettings(self)
         self.setSettings = Logger._setSettings(self)
         self.getTimeStamps = Logger._getTimeStamps(self)
@@ -1558,72 +2106,6 @@ class Logger(Interface):
         self.getLogRow = Logger._getLogRow(self)
 
 #
-# Section generated by IdlC from "AccumulatingNumericSensor.idl"
-#
-
-import raritan.rpc
-from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
-import raritan.rpc.event
-
-import raritan.rpc.sensors
-
-
-# interface
-class AccumulatingNumericSensor(NumericSensor):
-    idlType = "sensors.AccumulatingNumericSensor:2.0.3"
-
-    # value object
-    class ResetEvent(raritan.rpc.event.UserEvent):
-        idlType = "sensors.AccumulatingNumericSensor_2_0_3.ResetEvent:1.0.0"
-
-        def __init__(self, oldReading, newReading, actUserName, actIpAddr, source):
-            super(raritan.rpc.sensors.AccumulatingNumericSensor.ResetEvent, self).__init__(actUserName, actIpAddr, source)
-            typecheck.is_struct(oldReading, raritan.rpc.sensors.NumericSensor.Reading, AssertionError)
-            typecheck.is_struct(newReading, raritan.rpc.sensors.NumericSensor.Reading, AssertionError)
-
-            self.oldReading = oldReading
-            self.newReading = newReading
-
-        def encode(self):
-            json = super(raritan.rpc.sensors.AccumulatingNumericSensor.ResetEvent, self).encode()
-            json['oldReading'] = raritan.rpc.sensors.NumericSensor.Reading.encode(self.oldReading)
-            json['newReading'] = raritan.rpc.sensors.NumericSensor.Reading.encode(self.newReading)
-            return json
-
-        @classmethod
-        def decode(cls, json, agent):
-            obj = cls(
-                oldReading = raritan.rpc.sensors.NumericSensor.Reading.decode(json['oldReading'], agent),
-                newReading = raritan.rpc.sensors.NumericSensor.Reading.decode(json['newReading'], agent),
-                # for event.UserEvent
-                actUserName = json['actUserName'],
-                actIpAddr = json['actIpAddr'],
-                # for idl.Event
-                source = Interface.decode(json['source'], agent),
-            )
-            return obj
-
-        def listElements(self):
-            elements = ["oldReading", "newReading"]
-            elements = elements + super(raritan.rpc.sensors.AccumulatingNumericSensor.ResetEvent, self).listElements()
-            return elements
-
-    class _resetValue(Interface.Method):
-        name = 'resetValue'
-
-        @staticmethod
-        def encode():
-            args = {}
-            return args
-
-        @staticmethod
-        def decode(rsp, agent):
-            return None
-    def __init__(self, target, agent):
-        super(AccumulatingNumericSensor, self).__init__(target, agent)
-        self.resetValue = AccumulatingNumericSensor._resetValue(self)
-
-#
 # Section generated by IdlC from "Switch.idl"
 #
 
@@ -1634,7 +2116,7 @@ import raritan.rpc.event
 
 # interface
 class Switch(StateSensor):
-    idlType = "sensors.Switch:2.0.5"
+    idlType = "sensors.Switch:2.0.7"
 
     ERR_INVALID_PARAMETER = 1
 
@@ -1660,7 +2142,7 @@ class Switch(StateSensor):
 
     # value object
     class SwitchEvent(raritan.rpc.event.UserEvent):
-        idlType = "sensors.Switch_2_0_5.SwitchEvent:1.0.0"
+        idlType = "sensors.Switch_2_0_7.SwitchEvent:1.0.0"
 
         def __init__(self, targetState, actUserName, actIpAddr, source):
             super(raritan.rpc.sensors.Switch.SwitchEvent, self).__init__(actUserName, actIpAddr, source)
@@ -1692,209 +2174,3 @@ class Switch(StateSensor):
     def __init__(self, target, agent):
         super(Switch, self).__init__(target, agent)
         self.setState = Switch._setState(self)
-
-#
-# Section generated by IdlC from "AlertedSensorManager.idl"
-#
-
-import raritan.rpc
-from raritan.rpc import Interface, Structure, ValueObject, Enumeration, typecheck, DecodeException
-import raritan.rpc.idl
-
-import raritan.rpc.sensors
-
-
-# interface
-class AlertedSensorManager(Interface):
-    idlType = "sensors.AlertedSensorManager:1.0.1"
-
-    # enumeration
-    class AlertState(Enumeration):
-        idlType = "sensors.AlertedSensorManager_1_0_1.AlertState:1.0.0"
-        values = ["UNAVAILABLE", "NORMAL", "CRITICAL", "WARNED"]
-
-    AlertState.UNAVAILABLE = AlertState(0)
-    AlertState.NORMAL = AlertState(1)
-    AlertState.CRITICAL = AlertState(2)
-    AlertState.WARNED = AlertState(3)
-
-    # structure
-    class SensorCounts(Structure):
-        idlType = "sensors.AlertedSensorManager_1_0_1.SensorCounts:1.0.0"
-        elements = ["total", "unavailable", "critical", "warned"]
-
-        def __init__(self, total, unavailable, critical, warned):
-            typecheck.is_int(total, AssertionError)
-            typecheck.is_int(unavailable, AssertionError)
-            typecheck.is_int(critical, AssertionError)
-            typecheck.is_int(warned, AssertionError)
-
-            self.total = total
-            self.unavailable = unavailable
-            self.critical = critical
-            self.warned = warned
-
-        @classmethod
-        def decode(cls, json, agent):
-            obj = cls(
-                total = json['total'],
-                unavailable = json['unavailable'],
-                critical = json['critical'],
-                warned = json['warned'],
-            )
-            return obj
-
-        def encode(self):
-            json = {}
-            json['total'] = self.total
-            json['unavailable'] = self.unavailable
-            json['critical'] = self.critical
-            json['warned'] = self.warned
-            return json
-
-    # structure
-    class SensorData(Structure):
-        idlType = "sensors.AlertedSensorManager_1_0_1.SensorData:1.0.0"
-        elements = ["sensor", "parent", "alertState"]
-
-        def __init__(self, sensor, parent, alertState):
-            typecheck.is_interface(sensor, raritan.rpc.sensors.Sensor, AssertionError)
-            typecheck.is_remote_obj(parent, AssertionError)
-            typecheck.is_enum(alertState, raritan.rpc.sensors.AlertedSensorManager.AlertState, AssertionError)
-
-            self.sensor = sensor
-            self.parent = parent
-            self.alertState = alertState
-
-        @classmethod
-        def decode(cls, json, agent):
-            obj = cls(
-                sensor = Interface.decode(json['sensor'], agent),
-                parent = Interface.decode(json['parent'], agent),
-                alertState = raritan.rpc.sensors.AlertedSensorManager.AlertState.decode(json['alertState']),
-            )
-            return obj
-
-        def encode(self):
-            json = {}
-            json['sensor'] = Interface.encode(self.sensor)
-            json['parent'] = Interface.encode(self.parent)
-            json['alertState'] = raritan.rpc.sensors.AlertedSensorManager.AlertState.encode(self.alertState)
-            return json
-
-    # value object
-    class MonitoredSensorsChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.AlertedSensorManager_1_0_1.MonitoredSensorsChangedEvent:1.0.0"
-
-        def __init__(self, counts, source):
-            super(raritan.rpc.sensors.AlertedSensorManager.MonitoredSensorsChangedEvent, self).__init__(source)
-            typecheck.is_struct(counts, raritan.rpc.sensors.AlertedSensorManager.SensorCounts, AssertionError)
-
-            self.counts = counts
-
-        def encode(self):
-            json = super(raritan.rpc.sensors.AlertedSensorManager.MonitoredSensorsChangedEvent, self).encode()
-            json['counts'] = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.encode(self.counts)
-            return json
-
-        @classmethod
-        def decode(cls, json, agent):
-            obj = cls(
-                counts = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.decode(json['counts'], agent),
-                # for idl.Event
-                source = Interface.decode(json['source'], agent),
-            )
-            return obj
-
-        def listElements(self):
-            elements = ["counts"]
-            elements = elements + super(raritan.rpc.sensors.AlertedSensorManager.MonitoredSensorsChangedEvent, self).listElements()
-            return elements
-
-    # value object
-    class AlertedSensorsChangedEvent(raritan.rpc.idl.Event):
-        idlType = "sensors.AlertedSensorManager_1_0_1.AlertedSensorsChangedEvent:1.0.0"
-
-        def __init__(self, counts, changedSensors, removedSensors, source):
-            super(raritan.rpc.sensors.AlertedSensorManager.AlertedSensorsChangedEvent, self).__init__(source)
-            typecheck.is_struct(counts, raritan.rpc.sensors.AlertedSensorManager.SensorCounts, AssertionError)
-            for x0 in changedSensors:
-                typecheck.is_struct(x0, raritan.rpc.sensors.AlertedSensorManager.SensorData, AssertionError)
-            for x0 in removedSensors:
-                typecheck.is_interface(x0, raritan.rpc.sensors.Sensor, AssertionError)
-
-            self.counts = counts
-            self.changedSensors = changedSensors
-            self.removedSensors = removedSensors
-
-        def encode(self):
-            json = super(raritan.rpc.sensors.AlertedSensorManager.AlertedSensorsChangedEvent, self).encode()
-            json['counts'] = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.encode(self.counts)
-            json['changedSensors'] = [raritan.rpc.sensors.AlertedSensorManager.SensorData.encode(x0) for x0 in self.changedSensors]
-            json['removedSensors'] = [Interface.encode(x0) for x0 in self.removedSensors]
-            return json
-
-        @classmethod
-        def decode(cls, json, agent):
-            obj = cls(
-                counts = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.decode(json['counts'], agent),
-                changedSensors = [raritan.rpc.sensors.AlertedSensorManager.SensorData.decode(x0, agent) for x0 in json['changedSensors']],
-                removedSensors = [Interface.decode(x0, agent) for x0 in json['removedSensors']],
-                # for idl.Event
-                source = Interface.decode(json['source'], agent),
-            )
-            return obj
-
-        def listElements(self):
-            elements = ["counts", "changedSensors", "removedSensors"]
-            elements = elements + super(raritan.rpc.sensors.AlertedSensorManager.AlertedSensorsChangedEvent, self).listElements()
-            return elements
-
-    class _getSensorCounts(Interface.Method):
-        name = 'getSensorCounts'
-
-        @staticmethod
-        def encode():
-            args = {}
-            return args
-
-        @staticmethod
-        def decode(rsp, agent):
-            _ret_ = raritan.rpc.sensors.AlertedSensorManager.SensorCounts.decode(rsp['_ret_'], agent)
-            typecheck.is_struct(_ret_, raritan.rpc.sensors.AlertedSensorManager.SensorCounts, DecodeException)
-            return _ret_
-
-    class _getAllSensors(Interface.Method):
-        name = 'getAllSensors'
-
-        @staticmethod
-        def encode():
-            args = {}
-            return args
-
-        @staticmethod
-        def decode(rsp, agent):
-            _ret_ = [raritan.rpc.sensors.AlertedSensorManager.SensorData.decode(x0, agent) for x0 in rsp['_ret_']]
-            for x0 in _ret_:
-                typecheck.is_struct(x0, raritan.rpc.sensors.AlertedSensorManager.SensorData, DecodeException)
-            return _ret_
-
-    class _getAlertedSensors(Interface.Method):
-        name = 'getAlertedSensors'
-
-        @staticmethod
-        def encode():
-            args = {}
-            return args
-
-        @staticmethod
-        def decode(rsp, agent):
-            _ret_ = [raritan.rpc.sensors.AlertedSensorManager.SensorData.decode(x0, agent) for x0 in rsp['_ret_']]
-            for x0 in _ret_:
-                typecheck.is_struct(x0, raritan.rpc.sensors.AlertedSensorManager.SensorData, DecodeException)
-            return _ret_
-    def __init__(self, target, agent):
-        super(AlertedSensorManager, self).__init__(target, agent)
-        self.getSensorCounts = AlertedSensorManager._getSensorCounts(self)
-        self.getAllSensors = AlertedSensorManager._getAllSensors(self)
-        self.getAlertedSensors = AlertedSensorManager._getAlertedSensors(self)

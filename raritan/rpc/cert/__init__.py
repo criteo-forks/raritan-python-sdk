@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2020 Raritan Inc. All rights reserved.
+# Copyright 2022 Raritan Inc. All rights reserved.
 #
 # This is an auto-generated file.
 
@@ -15,7 +15,7 @@ import raritan.rpc.cert
 
 # interface
 class ServerSSLCert(Interface):
-    idlType = "cert.ServerSSLCert:2.0.0"
+    idlType = "cert.ServerSSLCert:3.0.0"
 
     SUCCESS = 0
 
@@ -25,6 +25,10 @@ class ServerSSLCert(Interface):
 
     ERR_GEN_KEY_GEN_FAILED = 102
 
+    ERR_GEN_KEY_TYPE_INVALID = 103
+
+    ERR_GEN_ELLIPTIC_CURVE_INVALID = 104
+
     ERR_INSTALL_KEY_MISSING = 200
 
     ERR_INSTALL_CERT_MISSING = 201
@@ -33,9 +37,11 @@ class ServerSSLCert(Interface):
 
     ERR_INSTALL_CERT_KEY_MISMATCH = 203
 
+    ERR_INSTALL_KEY_FORMAT_INVALID = 204
+
     # structure
     class CommonAttributes(Structure):
-        idlType = "cert.ServerSSLCert_2_0_0.CommonAttributes:1.0.0"
+        idlType = "cert.ServerSSLCert_3_0_0.CommonAttributes:1.0.0"
         elements = ["country", "stateOrProvince", "locality", "organization", "organizationalUnit", "commonName", "emailAddress"]
 
         def __init__(self, country, stateOrProvince, locality, organization, organizationalUnit, commonName, emailAddress):
@@ -79,27 +85,52 @@ class ServerSSLCert(Interface):
             json['emailAddress'] = self.emailAddress
             return json
 
+    # enumeration
+    class KeyType(Enumeration):
+        idlType = "cert.ServerSSLCert_3_0_0.KeyType:1.0.0"
+        values = ["KEY_TYPE_UNKNOWN", "KEY_TYPE_RSA", "KEY_TYPE_ECDSA"]
+
+    KeyType.KEY_TYPE_UNKNOWN = KeyType(0)
+    KeyType.KEY_TYPE_RSA = KeyType(1)
+    KeyType.KEY_TYPE_ECDSA = KeyType(2)
+
+    # enumeration
+    class EllipticCurve(Enumeration):
+        idlType = "cert.ServerSSLCert_3_0_0.EllipticCurve:1.0.0"
+        values = ["EC_CURVE_UNKNOWN", "EC_CURVE_NIST_P256", "EC_CURVE_NIST_P384", "EC_CURVE_NIST_P521"]
+
+    EllipticCurve.EC_CURVE_UNKNOWN = EllipticCurve(0)
+    EllipticCurve.EC_CURVE_NIST_P256 = EllipticCurve(1)
+    EllipticCurve.EC_CURVE_NIST_P384 = EllipticCurve(2)
+    EllipticCurve.EC_CURVE_NIST_P521 = EllipticCurve(3)
+
     # structure
     class ReqInfo(Structure):
-        idlType = "cert.ServerSSLCert_2_0_0.ReqInfo:1.0.0"
-        elements = ["subject", "names", "keyLength"]
+        idlType = "cert.ServerSSLCert_3_0_0.ReqInfo:1.0.0"
+        elements = ["subject", "names", "keyType", "ellipticCurve", "rsaKeyLength"]
 
-        def __init__(self, subject, names, keyLength):
+        def __init__(self, subject, names, keyType, ellipticCurve, rsaKeyLength):
             typecheck.is_struct(subject, raritan.rpc.cert.ServerSSLCert.CommonAttributes, AssertionError)
             for x0 in names:
                 typecheck.is_string(x0, AssertionError)
-            typecheck.is_int(keyLength, AssertionError)
+            typecheck.is_enum(keyType, raritan.rpc.cert.ServerSSLCert.KeyType, AssertionError)
+            typecheck.is_enum(ellipticCurve, raritan.rpc.cert.ServerSSLCert.EllipticCurve, AssertionError)
+            typecheck.is_int(rsaKeyLength, AssertionError)
 
             self.subject = subject
             self.names = names
-            self.keyLength = keyLength
+            self.keyType = keyType
+            self.ellipticCurve = ellipticCurve
+            self.rsaKeyLength = rsaKeyLength
 
         @classmethod
         def decode(cls, json, agent):
             obj = cls(
                 subject = raritan.rpc.cert.ServerSSLCert.CommonAttributes.decode(json['subject'], agent),
                 names = [x0 for x0 in json['names']],
-                keyLength = json['keyLength'],
+                keyType = raritan.rpc.cert.ServerSSLCert.KeyType.decode(json['keyType']),
+                ellipticCurve = raritan.rpc.cert.ServerSSLCert.EllipticCurve.decode(json['ellipticCurve']),
+                rsaKeyLength = json['rsaKeyLength'],
             )
             return obj
 
@@ -107,15 +138,17 @@ class ServerSSLCert(Interface):
             json = {}
             json['subject'] = raritan.rpc.cert.ServerSSLCert.CommonAttributes.encode(self.subject)
             json['names'] = [x0 for x0 in self.names]
-            json['keyLength'] = self.keyLength
+            json['keyType'] = raritan.rpc.cert.ServerSSLCert.KeyType.encode(self.keyType)
+            json['ellipticCurve'] = raritan.rpc.cert.ServerSSLCert.EllipticCurve.encode(self.ellipticCurve)
+            json['rsaKeyLength'] = self.rsaKeyLength
             return json
 
     # structure
     class CertInfo(Structure):
-        idlType = "cert.ServerSSLCert_2_0_0.CertInfo:1.0.0"
-        elements = ["subject", "issuer", "names", "invalidBefore", "invalidAfter", "serialNumber", "keyLength"]
+        idlType = "cert.ServerSSLCert_3_0_0.CertInfo:1.0.0"
+        elements = ["subject", "issuer", "names", "invalidBefore", "invalidAfter", "serialNumber", "keyType", "ellipticCurve", "rsaKeyLength"]
 
-        def __init__(self, subject, issuer, names, invalidBefore, invalidAfter, serialNumber, keyLength):
+        def __init__(self, subject, issuer, names, invalidBefore, invalidAfter, serialNumber, keyType, ellipticCurve, rsaKeyLength):
             typecheck.is_struct(subject, raritan.rpc.cert.ServerSSLCert.CommonAttributes, AssertionError)
             typecheck.is_struct(issuer, raritan.rpc.cert.ServerSSLCert.CommonAttributes, AssertionError)
             for x0 in names:
@@ -123,7 +156,9 @@ class ServerSSLCert(Interface):
             typecheck.is_string(invalidBefore, AssertionError)
             typecheck.is_string(invalidAfter, AssertionError)
             typecheck.is_string(serialNumber, AssertionError)
-            typecheck.is_int(keyLength, AssertionError)
+            typecheck.is_enum(keyType, raritan.rpc.cert.ServerSSLCert.KeyType, AssertionError)
+            typecheck.is_enum(ellipticCurve, raritan.rpc.cert.ServerSSLCert.EllipticCurve, AssertionError)
+            typecheck.is_int(rsaKeyLength, AssertionError)
 
             self.subject = subject
             self.issuer = issuer
@@ -131,7 +166,9 @@ class ServerSSLCert(Interface):
             self.invalidBefore = invalidBefore
             self.invalidAfter = invalidAfter
             self.serialNumber = serialNumber
-            self.keyLength = keyLength
+            self.keyType = keyType
+            self.ellipticCurve = ellipticCurve
+            self.rsaKeyLength = rsaKeyLength
 
         @classmethod
         def decode(cls, json, agent):
@@ -142,7 +179,9 @@ class ServerSSLCert(Interface):
                 invalidBefore = json['invalidBefore'],
                 invalidAfter = json['invalidAfter'],
                 serialNumber = json['serialNumber'],
-                keyLength = json['keyLength'],
+                keyType = raritan.rpc.cert.ServerSSLCert.KeyType.decode(json['keyType']),
+                ellipticCurve = raritan.rpc.cert.ServerSSLCert.EllipticCurve.decode(json['ellipticCurve']),
+                rsaKeyLength = json['rsaKeyLength'],
             )
             return obj
 
@@ -154,27 +193,35 @@ class ServerSSLCert(Interface):
             json['invalidBefore'] = self.invalidBefore
             json['invalidAfter'] = self.invalidAfter
             json['serialNumber'] = self.serialNumber
-            json['keyLength'] = self.keyLength
+            json['keyType'] = raritan.rpc.cert.ServerSSLCert.KeyType.encode(self.keyType)
+            json['ellipticCurve'] = raritan.rpc.cert.ServerSSLCert.EllipticCurve.encode(self.ellipticCurve)
+            json['rsaKeyLength'] = self.rsaKeyLength
             return json
 
     # structure
     class Info(Structure):
-        idlType = "cert.ServerSSLCert_2_0_0.Info:1.0.0"
-        elements = ["havePendingReq", "havePendingCert", "pendingReqInfo", "pendingCertInfo", "activeCertInfo", "maxSignDays"]
+        idlType = "cert.ServerSSLCert_3_0_0.Info:1.0.0"
+        elements = ["havePendingReq", "havePendingCert", "pendingReqInfo", "pendingCertInfo", "pendingCertChainInfos", "activeCertInfo", "activeCertChainInfos", "maxSignDays"]
 
-        def __init__(self, havePendingReq, havePendingCert, pendingReqInfo, pendingCertInfo, activeCertInfo, maxSignDays):
+        def __init__(self, havePendingReq, havePendingCert, pendingReqInfo, pendingCertInfo, pendingCertChainInfos, activeCertInfo, activeCertChainInfos, maxSignDays):
             typecheck.is_bool(havePendingReq, AssertionError)
             typecheck.is_bool(havePendingCert, AssertionError)
             typecheck.is_struct(pendingReqInfo, raritan.rpc.cert.ServerSSLCert.ReqInfo, AssertionError)
             typecheck.is_struct(pendingCertInfo, raritan.rpc.cert.ServerSSLCert.CertInfo, AssertionError)
+            for x0 in pendingCertChainInfos:
+                typecheck.is_struct(x0, raritan.rpc.cert.ServerSSLCert.CertInfo, AssertionError)
             typecheck.is_struct(activeCertInfo, raritan.rpc.cert.ServerSSLCert.CertInfo, AssertionError)
+            for x0 in activeCertChainInfos:
+                typecheck.is_struct(x0, raritan.rpc.cert.ServerSSLCert.CertInfo, AssertionError)
             typecheck.is_int(maxSignDays, AssertionError)
 
             self.havePendingReq = havePendingReq
             self.havePendingCert = havePendingCert
             self.pendingReqInfo = pendingReqInfo
             self.pendingCertInfo = pendingCertInfo
+            self.pendingCertChainInfos = pendingCertChainInfos
             self.activeCertInfo = activeCertInfo
+            self.activeCertChainInfos = activeCertChainInfos
             self.maxSignDays = maxSignDays
 
         @classmethod
@@ -184,7 +231,9 @@ class ServerSSLCert(Interface):
                 havePendingCert = json['havePendingCert'],
                 pendingReqInfo = raritan.rpc.cert.ServerSSLCert.ReqInfo.decode(json['pendingReqInfo'], agent),
                 pendingCertInfo = raritan.rpc.cert.ServerSSLCert.CertInfo.decode(json['pendingCertInfo'], agent),
+                pendingCertChainInfos = [raritan.rpc.cert.ServerSSLCert.CertInfo.decode(x0, agent) for x0 in json['pendingCertChainInfos']],
                 activeCertInfo = raritan.rpc.cert.ServerSSLCert.CertInfo.decode(json['activeCertInfo'], agent),
+                activeCertChainInfos = [raritan.rpc.cert.ServerSSLCert.CertInfo.decode(x0, agent) for x0 in json['activeCertChainInfos']],
                 maxSignDays = json['maxSignDays'],
             )
             return obj
@@ -195,7 +244,9 @@ class ServerSSLCert(Interface):
             json['havePendingCert'] = self.havePendingCert
             json['pendingReqInfo'] = raritan.rpc.cert.ServerSSLCert.ReqInfo.encode(self.pendingReqInfo)
             json['pendingCertInfo'] = raritan.rpc.cert.ServerSSLCert.CertInfo.encode(self.pendingCertInfo)
+            json['pendingCertChainInfos'] = [raritan.rpc.cert.ServerSSLCert.CertInfo.encode(x0) for x0 in self.pendingCertChainInfos]
             json['activeCertInfo'] = raritan.rpc.cert.ServerSSLCert.CertInfo.encode(self.activeCertInfo)
+            json['activeCertChainInfos'] = [raritan.rpc.cert.ServerSSLCert.CertInfo.encode(x0) for x0 in self.activeCertChainInfos]
             json['maxSignDays'] = self.maxSignDays
             return json
 
@@ -283,7 +334,7 @@ class ServerSSLCert(Interface):
         self.installPendingKeyPair = ServerSSLCert._installPendingKeyPair(self)
 
 # from raritan/rpc/cert/__extend__.py
-def upload(agent, certData, keyData):
+def upload(agent, certData, keyData=None):
     """
     Method to upload certificates
 
@@ -291,7 +342,8 @@ def upload(agent, certData, keyData):
 
     :param agent: An agent instance for the device where the certificate should be uploaded
     :param certData: The binary data of the certificate
-    :param keyData: The binary data of the key
+    :param keyData: The binary data of the key (optional, default: None)
+    :return: the response code
 
     - **Example**
         :Example:
@@ -306,20 +358,28 @@ def upload(agent, certData, keyData):
         certFile = open("my-cert.crt", "rb")
         keyFile = open("my-key.key", "rb")
         # upload
-        cert.upload(agent, certFile.read(), keyFile.read())
+        code = cert.upload(agent, certFile.read(), keyFile.read())
+        # view code
+        print(code)
     """
     target = "cgi-bin/server_ssl_cert_upload.cgi"
-    formnames = ["cert_file", "key_file"]
-    filenames = ["cert-file.crt", "key-file.key"]
-    agent.form_data_file(target, [certData, keyData], filenames, formnames, ["application/octet-stream", "application/octet-stream"])
+    formdata = [dict(data=certData, filename="cert-file.crt", formname="cert_file", mimetype="application/octet-stream")]
+    if keyData:
+        formdata.append(dict(data=keyData, filename="key-file.key", formname="key_file", mimetype="application/octet-stream"))
+    response = agent.form_data_file(target, formdata)
+    # extract the result from "return_code=<code>" from body
+    respBody = response["body"].split("=")
+    return int(respBody[1])
 
-def download(agent):
+def download(agent, tag="active_cert"):
     """
     Method to download the server cert
 
     **parameters**
 
     :param agent: An agent instance from the device where the certificate file should be downloaded
+    :param tag: The tag to define what should be downloaded
+    (default: "active_cert", values: "active_cert","active_key","new_cert","new_key","new_req")
     :return: returns the certificate data
 
     **Example**
@@ -330,8 +390,8 @@ def download(agent):
 
         agent = rpc.Agent("https", "my-pdu.example.com", "admin", "raritan")
         # download
-        cert = cert.download(agent)
+        cert = cert.download(agent, "active_cert")
         print(cert)
     """
-    target = "cgi-bin/server_ssl_cert_download.cgi"
+    target = "cgi-bin/server_ssl_cert_download.cgi?tag=%s" % tag
     return agent.get(target)

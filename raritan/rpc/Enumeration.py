@@ -6,20 +6,20 @@ import raritan.rpc
 
 class Enumeration(object):
     def __init__(self, val):
-        assert isinstance(val, int)
+        if not isinstance(val, int): raise ValueError
         self.val = val
 
     def encode(self):
         """Encodes enum value to JSON int."""
         json = self.val
         return json
- 
+
     @classmethod
     def decode(cls, json):
         """Decodes JSON int to enum value."""
-        assert isinstance(json, int)
+        if not isinstance(json, int): raise ValueError
         val = json
-        assert(val >= 0)
+        if not (val >= 0): raise ValueError
         if (val < len(cls.values)):
             attr = cls.values[val]
             return getattr(cls, attr)

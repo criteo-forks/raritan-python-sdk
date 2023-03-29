@@ -88,7 +88,7 @@ def is_enum(x, cls, exception):
 
 def is_valobj(x, cls, exception):
     if x == None:
-    	return True # ValueObject may be null / 'None'
+        return True # ValueObject may be null / 'None'
     if not isinstance(x, ValueObject):
         raise exception("'%s' is not a value object" % (x))
     is_class(x, cls, exception)

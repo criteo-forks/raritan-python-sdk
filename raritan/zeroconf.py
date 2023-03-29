@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Copyright 2019 Raritan Inc. All rights reserved.
+
 import time, socket
 
 ZEROCONF_TIMEOUT_DEFAULT = 4
@@ -5,7 +9,7 @@ ZEROCONF_TIMEOUT_DEFAULT = 4
 class ZeroconfDiscoveryListener:
     def __init__(self):
         self.found_pdus = {}
-        self.pdu_prefixes = ["PX2", "PX3", "SRC", "BCM", "BCM2", "PX3TS", "PMC", "PMMC", "PXE", "SCH", "SRC", "LP", "PXO", "PXC", "EMX"]
+        self.pdu_prefixes = ["PX2", "PX3", "SRC", "BCM", "BCM2", "PX3TS", "PMC", "PMMC", "PXE", "SCH", "SRC", "LP", "PXO", "PXC"]
 
     def remove_service(self, zeroconf, service_type, name):
         pass
